@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
 
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('mare_token');
@@ -8,7 +8,15 @@ async function request(endpoint, options = {}) {
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+  let res;
+  try {
+    res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+  } catch {
+    throw new Error(
+      'No se pudo conectar con el servidor. Verifica que el backend en Render esté activo y que VITE_API_URL esté configurada en Vercel.'
+    );
+  }
+
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {

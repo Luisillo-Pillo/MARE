@@ -24,7 +24,11 @@ app.use(cors(corsOptions()));
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', service: 'MARE API' });
+  res.json({
+    status: 'ok',
+    service: 'MARE API',
+    frontendUrl: process.env.FRONTEND_URL ? 'configurado' : 'no configurado',
+  });
 });
 
 app.use('/api/auth', authRoutes);
