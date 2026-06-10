@@ -45,7 +45,23 @@ export async function connectDB() {
     if (err.syscall === 'querySrv') {
       throw new Error(
         'No se pudo resolver el host de MongoDB Atlas.\n' +
-          'Verifica la URI en backend/.env y que tu IP esté permitida en Network Access.\n' +
+          'Verifica la URI y Network Access en Atlas.\n' +
+          `Detalle: ${err.message}`
+      );
+    }
+    if (
+      err.message?.includes('whitelist') ||
+      err.message?.includes('IP that isn') ||
+      err.name === 'MongooseServerSelectionError'
+    ) {
+      throw new Error(
+        'MongoDB Atlas rechazó la conexión desde Render.\n\n' +
+          'Solución en MongoDB Atlas:\n' +
+          '  1. Ve a https://cloud.mongodb.com → tu cluster\n' +
+          '  2. Security → Network Access → Add IP Address\n' +
+          '  3. Elige "ALLOW ACCESS FROM ANYWHERE" (0.0.0.0/0)\n' +
+          '  4. Guarda y espera 1-2 minutos\n' +
+          '  5. Redespliega en Render\n\n' +
           `Detalle: ${err.message}`
       );
     }
