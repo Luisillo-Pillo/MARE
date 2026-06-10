@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { connectDB } from './config/db.js';
 import { corsOptions } from './config/cors.js';
+import { validateEnv } from './config/env.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import reservationRoutes from './routes/reservations.js';
@@ -11,10 +12,7 @@ import contactRoutes from './routes/contact.js';
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
 
-if (!process.env.JWT_SECRET?.trim()) {
-  console.error('❌ JWT_SECRET no está configurado en backend/.env');
-  process.exit(1);
-}
+validateEnv();
 
 if (process.env.SMTP_PASS?.includes('contraseña_de_aplicacion')) {
   console.warn('⚠️  SMTP_PASS sigue con el valor de ejemplo. Los correos no se enviarán hasta configurarlo.');
