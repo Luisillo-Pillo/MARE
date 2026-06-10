@@ -1,0 +1,126 @@
+import { useState } from 'react';
+import { EVENT_TYPES, PACKAGES, DURATION_OPTIONS, TIME_OPTIONS } from '../constants/packages';
+
+function toFormState(initial = {}, defaultService = '') {
+  const date = initial.date
+    ? new Date(initial.date).toISOString().split('T')[0]
+    : '';
+  return {
+    service: initial.service || defaultService || '',
+    eventType: initial.eventType || '',
+    customEventType: initial.customEventType || '',
+    description: initial.description || '',
+    date,
+    startTime: initial.startTime || '',
+    duration: String(initial.duration || '2'),
+  };
+}
+
+export default function ReservationForm({
+  defaultService = '',
+  initialData = null,
+  onSubmit,
+  submitLabel = 'Enviar solicitud',
+  loading = false,
+}) {
+  const [form, setForm] = useState(() => toFormState(initialData, defaultService));
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      await onSubmit({
+        ...form,
+        duration: Number(form.duration),
+        customEventType: form.eventType === 'Otro' ? form.customEventType : '',
+      });
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="card">
+      {error && <div className="alert alert-error">{error}</div>}
+
+      <div className="form-group">
+        <label htmlFor="service">Servicio solicitado</label>
+        <select id="service" name="service" value={form.service} onChange={handleChange} required>
+          <option value="">Selecciona un paquete</option>
+          {PACKAGES.map((p) => (
+            <option key={p.id} value={p.id}>{p.id}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="eventType">Tipo de evento</label>
+        <select id="eventType" name="eventType" value={form.eventType} onChange={handleChange} required>
+          <option value="">Selecciona el tipo</option>
+          {EVENT_TYPES.map((t) => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+      </div>
+
+      {form.eventType === 'Otro' && (
+        <div className="form-group">
+          <label htmlFor="customEventType">Especifica el tipo de evento</label>
+          <input
+            id="customEventType"
+            name="customEventType"
+            value={form.customEventType}
+            onChange={handleChange}
+            required
+          />
+        </div>
+      )}
+
+      <div className="form-group">
+        <label htmlFor="description">Descripción del evento</label>
+        <textarea
+          id="description"
+          name="description"
+          value={form.description}
+          onChange={handleChange}
+          required
+          placeholder="Cuéntanos sobre tu evento..."
+        />
+      </div>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label htmlFor="date">Fecha</label>
+          <input id="date" name="date" type="date" value={form.date} onChange={handleChange} required />
+        </div>
+        <div className="form-group">
+          <label htmlFor="startTime">Hora de inicio</label>
+          <select id="startTime" name="startTime" value={form.startTime} onChange={handleChange} required>
+            <option value="">Selecciona hora</option>
+            {TIME_OPTIONS.map((t) => (
+              <option key={t.value} value={t.value}>{t.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="duration">Duración</label>
+          <select id="duration" name="duration" value={form.duration} onChange={handleChange} required>
+            {DURATION_OPTIONS.map((d) => (
+              <option key={d.value} value={d.value}>{d.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" className="btn btn-primary" disabled={loading}>
+        {loading ? 'Enviando...' : submitLabel}
+      </button>
+    </form>
+  );
+}

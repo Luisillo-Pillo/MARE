@@ -1,0 +1,38 @@
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.event-card {
+  border-left: 4px solid var(--color-gold);
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.event-date {
+  font-weight: 600;
+  color: var(--color-brown);
+  text-transform: capitalize;
+}
+
+.event-body p {
+  margin-bottom: 0.4rem;
+}
+
+.event-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
