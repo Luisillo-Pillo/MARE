@@ -13,7 +13,7 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: FRONTEND_URL
-        sync: false
+        value: https://mare-omega.vercel.app
       - key: SMTP_USER
         sync: false
       - key: SMTP_PASS

@@ -20,7 +20,10 @@ function isAllowedOrigin(origin, allowedOrigins) {
 
   if (allowedOrigins.includes(normalized)) return true;
 
-  // Si FRONTEND_URL apunta a Vercel, permitir cualquier subdominio *.vercel.app
+  // En producción, permitir cualquier despliegue de Vercel
+  if (process.env.NODE_ENV === 'production' && isVercelOrigin(normalized)) return true;
+
+  // Si FRONTEND_URL apunta a Vercel, permitir subdominios *.vercel.app
   const hasVercelInConfig = allowedOrigins.some((o) => o.includes('.vercel.app'));
   if (hasVercelInConfig && isVercelOrigin(normalized)) return true;
 
@@ -31,7 +34,8 @@ export function corsOptions() {
   const allowedOrigins = getAllowedOrigins();
 
   if (process.env.NODE_ENV === 'production') {
-    console.log('CORS — orígenes permitidos:', allowedOrigins.join(', ') || '(ninguno)');
+    console.log('CORS — orígenes configurados:', allowedOrigins.join(', '));
+    console.log('CORS — *.vercel.app permitido en producción');
   }
 
   return {
@@ -40,9 +44,10 @@ export function corsOptions() {
       if (isAllowedOrigin(origin, allowedOrigins)) return callback(null, true);
 
       console.warn(`CORS rechazado: ${origin}`);
-      console.warn(`Orígenes configurados: ${allowedOrigins.join(', ')}`);
       callback(null, false);
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   };
 }
