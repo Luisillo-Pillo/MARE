@@ -2,17 +2,16 @@ import { useState } from 'react';
 import { EVENT_TYPES, PACKAGES, DURATION_OPTIONS, TIME_OPTIONS } from '../constants/packages';
 
 function toFormState(initial = {}, defaultService = '') {
-  const date = initial.date
-    ? new Date(initial.date).toISOString().split('T')[0]
-    : '';
+  const init = initial || {};
+  const date = init.date ? new Date(init.date).toISOString().split('T')[0] : '';
   return {
-    service: initial.service || defaultService || '',
-    eventType: initial.eventType || '',
-    customEventType: initial.customEventType || '',
-    description: initial.description || '',
+    service: init.service || defaultService || '',
+    eventType: init.eventType || '',
+    customEventType: init.customEventType || '',
+    description: init.description || '',
     date,
-    startTime: initial.startTime || '',
-    duration: String(initial.duration || '2'),
+    startTime: init.startTime || '',
+    duration: String(init.duration || '2'),
   };
 }
 
