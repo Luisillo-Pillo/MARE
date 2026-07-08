@@ -50,8 +50,18 @@ export default function Navbar() {
 
         <div className={`navbar-links ${menuOpen ? 'open' : ''}`}>
           <Link to="/" onClick={closeMenu}>Inicio</Link>
-          <Link to="/contacto" onClick={closeMenu}>Contáctanos</Link>
-          <Link to="/reservar" onClick={closeMenu}>Reserva</Link>
+          {isAdmin ? (
+            <>
+              <Link to="/admin/mensajes" onClick={closeMenu}>Mensajes</Link>
+              <Link to="/admin/clientes" onClick={closeMenu}>Clientes</Link>
+              <Link to="/admin/reservaciones" onClick={closeMenu}>Reservaciones</Link>
+            </>
+          ) : (
+            <>
+              <Link to="/contacto" onClick={closeMenu}>Contáctanos</Link>
+              <Link to="/reservar" onClick={closeMenu}>Reserva</Link>
+            </>
+          )}
 
           {user ? (
             <div className="user-menu" ref={userMenuRef}>

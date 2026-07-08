@@ -33,11 +33,11 @@ export default function Reservation() {
     setLoading(true);
     try {
       await api.createReservation(data);
+      setLoading(false);
       navigate('/reservacion-confirmada');
     } catch (err) {
-      throw err;
-    } finally {
       setLoading(false);
+      throw err;
     }
   };
 
