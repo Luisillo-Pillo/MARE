@@ -1,0 +1,119 @@
+Quiero que generes un sitio web con las siguientes características. El sitio es uno informativo acerca de un negocio familiar de comida. El negocio se llama MARE. Quiero que hagas el frontend y el backend.
+
+Los datos del negocio son los siguientes:
+Ubicación: AV DE LA CONVENCION PTE 1914 #1610, LA CONCORDIA. AGUASCALIENTES, AGS.
+Whatsapp: 449 173 7681
+Teléfono: 449 913 5323
+Correo: mare.eventos.pro@gmail.com
+Facebook: https://www.facebook.com/share/1Am7qbogrR/
+Logo: Imagen adjunta
+Paleta de colores:
+- #050404
+- #cca166
+- #e65f17
+- #eedgad
+- #914721
+- #ba491d
+- #aogc97
+- #dba83d
+
+El home page debe estar organizado de la siguiente manera:
+- Nav bar:
+	Debe estar fijo aunque scrollee por la página
+	- Nombre del negocio
+	- Inicio: Debe regresar al inicio del home page
+	- Contáctanos: Debe enviar a la página de contacto.
+	- Reserva: Debe enviar a la página de reserva.
+	- Iniciar sesión/Registrarse: una vez que inicie sesión se cambiará por el nombre del usuario con un menú expandible con:
+		- Perfil
+		- Eventos
+		- Cerrar Sesión
+
+- Main banner carousell:
+	Tendrá imágenes variadas sobre el servicio que ofrece el negocio.
+
+- ¿Quiénes Somos?
+	Debe contener el siguiente texto, y el logo del negocio a un costado: "MARE es un negocio familiar el cual busca complacer y dar el mejor servicio en los eventos solicitados, superando las expectativas de sus clientes.
+
+Estamos disponibles para cualquier tipo de evento y dispuestos a dar todo de nosotros para satisfacer tus necesidades. Nos ajustamos a tu presupuesto.
+
+Contamos con todo lo necesario para realizar el evento de tus sueños."
+
+- Nuestros Paquetes:
+	Quiero que muestre 4 recuadros con los 4 paquetes que ofrece el negocio. Dentro de cada recuadro llevará número de paquete ("Paquete 1", "Paquete 2", "Paquete 3" y "Paquete 4"), contenido:
+- Paquete 1: "2 HORAS DE SERVICIO
+4 a 6 guisos.
+Complementos 12 variedades.
+Plato, vaso y servilletas.
+Bebida.
+Personal de servicio.
+Coordinador de evento."
+-Paquete 2: "2 HORAS DE SERVICIO
+Pastor, Bisteck, Adobada, Lechón.
+Complementos 12 variedades.
+Plato, vaso y servilletas.
+Bebida.
+Personal de servicio.
+Coordinador de evento"
+- Paquete 3: "Rib eye, Sirloin, Bisteck, Cecina, Chorizo español.
+Complementos 12 variedades.
+Plato, vaso y servilletas.
+Bebida.
+Personal de servicio.
+Coordinador de evento"
+- Paquete 4: "Birria, Lechón, Barbacoa de borrego.
+Complementos 12 variedades.
+Plato, vaso y servilletas.
+Bebida.
+Personal de servicio.
+Coordinador de evento"
+Y debajo de cada recuadro debe haber un botón con el texto "Reservar" que mande a la página de reservar.
+Debajo, en la misma sección de Paquetes, incluye esta frase en la parte de abajo: "Cotizamos tu evento acorde a tu necesidad y presupuesto"
+
+Agrega un footer con información de contacto, reservación de derechos de autor, nombre del negocio y logo.
+
+Para la página de contactos se debe mantener el mismo nav bar con las mismas funciones. En esa página debe de estar la información de contacto, la ubicación del establecimiento escrita y en un mapa interactivo y un formulario de contacto para el negocio. Mantén también el mismo footer.
+
+Para la página de reservaciones se deben mantener tanto el nav bar como el footer con las mismas funciones. En ésta página debe haber un formulario con servicio solicitado (si se llega a esta página desde uno de los botones de los recuadros de paquetes, el campo de servicio ya estará pre seleccionado con el valor del paquete desde el que se llegó a la página), descripción del evento, fecha y horario. Para enviar una solicitud de reservación, es necesario que el usuario tenga una sesión activa.
+
+La página de perfil incluirá los datos del usuario guardados al momento del regustro, datos como nombre, número de teléfono, correo, contraseña y rol. Además de un botón para la página de eventos y otro para cerrar sesión.
+
+La página de eventos será una lista con el historial de eventos reservados tanto antiguos como actuales, cada evento debe contener fecha, tipo, servicio contratado, descripción y estatus. Para acceder a esta página es necesario tener una sesión activa.
+
+La página de inicio de sesión debe pedir correo y contraseña. Si el correo no está registrado debe dar la opción de registrarse. Si la contraseña es incorrecta debe dar un aviso.
+
+La página de registro debe pedir un correo válido, un número de teléfono válido, un nombre válido y una contraseña válida. En caso de que el correo ya se encuentre registrado, avise al usuario y pídale iniciar sesión.
+
+El backend debe guardar toda la información del usuario, como nombre correo, contraseña, número de teléfono, servicios solicitados y estado del servicio. Además de las imágenes utilizadas. Es necesario también que el back guarde las solicitudes de los usuarios normales y las agregue en la página de clientes del admin
+
+Quiero que la información del formulario contáctanos se envíe por correo al correo del negocio.
+
+En la página puede haber 2 tipos de usuarios, el usuario normal y el admin. El admin, en el menú desplegable de su perfil tiene una opción extra llamada "Clientes".
+
+En la página clientes debe de haber una lista de todos los usuarios registrados, con un filtro para los que ya hicieron o no han hecho reservaciones aún. Un usuario admin tiene el control para asignar roles a otros usuarios
+
+En la esquina superior izquierda de cada página a excepción del home page quiero que haya una flecha que sirva para regresar a la página anterior disponible, solo si está disponible, si no, los enviará al home page
+
+Quiero que utilices react, lite, mongoose, mongoDB y JWT. Quiero poder publicar esta página en GitHub pages.
+
+Asegúrate de que se adapte bien para dispositivos móviles como celulares
+
+En la página del admin de reservaciones y clientes, para cada reservación y cada cliente, quiero que agregues un botón de eliminar que borre los datos del cliente/reservación. Quiero que el Admin pueda ver el perfil del usuario.
+
+
+Hazme las preguntas necesarias para completar la tarea de la manera más completa y detallada posible
+
+
+
+_________________________
+
+
+
+
+En la página del admin de reservaciones y clientes, para cada reservación y cada cliente, quiero que agregues un botón de eliminar que borre los datos del cliente/reservación. Quiero que el Admin pueda ver el perfil del usuario. Ajusta el carrusel del home page, actualmente está tapando el contenido de quienes somos, ajusta el margen o el tamaño para que cada cosa tenga su propio espacio sin coincidir
+
+
+
+
+
+
