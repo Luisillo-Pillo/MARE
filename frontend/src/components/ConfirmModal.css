@@ -29,5 +29,6 @@
     display:flex;
     gap:0.75rem;
     justify-content: space-between;
-    max-width: 80%;
+    max-width: 85%;
+    margin: 0 auto;
 }
