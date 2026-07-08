@@ -65,12 +65,16 @@ router.post('/', authRequired, async (req, res) => {
     const user = await User.findById(req.userId);
     const businessEmail = process.env.CONTACT_EMAIL || process.env.SMTP_USER;
     if (businessEmail) {
-      await sendEmail({
-        to: businessEmail,
-        subject: 'Nueva reservación - MARE',
-        html: reservationCreatedBusinessHtml(reservation, user),
-        text: `Nueva reservación de ${user.name}`,
-      });
+      try {
+        await sendEmail({
+          to: businessEmail,
+          subject: 'Nueva reservación - MARE',
+          html: reservationCreatedBusinessHtml(reservation, user),
+          text: `Nueva reservación de ${user.name}`,
+        });
+      } catch (emailError) {
+        console.error('Error sending reservation email:', emailError);
+      }
     }
 
     res.status(201).json(reservation);

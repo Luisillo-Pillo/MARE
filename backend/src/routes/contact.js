@@ -31,12 +31,16 @@ router.post('/', async (req, res) => {
 
     const to = process.env.CONTACT_EMAIL || process.env.SMTP_USER;
     if (to) {
-      await sendEmail({
-        to,
-        subject: `Contacto MARE: ${subject}`,
-        html: contactEmailHtml(contactMessage),
-        text: message,
-      });
+      try {
+        await sendEmail({
+          to,
+          subject: `Contacto MARE: ${subject}`,
+          html: contactEmailHtml(contactMessage),
+          text: message,
+        });
+      } catch (emailError) {
+        console.error('Error sending contact email:', emailError);
+      }
     }
 
     res.status(201).json({ message: 'Mensaje enviado correctamente' });
