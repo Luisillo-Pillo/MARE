@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import './Clients.css';
+import ConfirmModal from '../../components/ConfirmModal';
+import { useToast } from '../../context/ToastContext';
 
 export default function Clients() {
   const { user } = useAuth();
@@ -11,6 +13,8 @@ export default function Clients() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [confirmState, setConfirmState] = useState(null);
+  const { showToast } = useToast();
 
   const load = async () => {
     setLoading(true);
@@ -30,16 +34,23 @@ export default function Clients() {
   }, [filter, user]);
 
   const handleRoleChange = async (id, role) => {
-    const action = role === 'admin' ? 'Asignar rol de administrador' : 'Quitar rol de administrador';
-    if (!confirm(`${action}?`)) return;
+    // open confirm modal
+    setConfirmState({ id, role });
+  };
+
+  const doRoleChange = async () => {
+    if (!confirmState) return;
+    const { id, role } = confirmState;
+    setConfirmState(null);
     try {
       await api.updateClientRole(id, role);
+      showToast('Rol actualizado', 'success');
       load();
     } catch (err) {
       console.error('updateClientRole error', err);
       const msg = err?.data?.message || err?.message || 'Error al cambiar el rol';
       setError(msg);
-      alert(msg);
+      showToast(msg, 'error');
     }
   };
 
@@ -172,6 +183,13 @@ export default function Clients() {
                 </div>
               )}
             </section>
+            <ConfirmModal
+              open={!!confirmState}
+              title={confirmState?.role === 'admin' ? 'Asignar administrador' : 'Quitar administrador'}
+              message={confirmState?.role === 'admin' ? '¿Asignar rol de administrador a este usuario?' : '¿Quitar rol de administrador de este usuario?'}
+              onConfirm={doRoleChange}
+              onCancel={() => setConfirmState(null)}
+            />
           </>
         )}
       </div>
