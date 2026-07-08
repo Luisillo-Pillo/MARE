@@ -4,6 +4,7 @@ import ReservationForm from '../../components/ReservationForm';
 import { statusClass } from '../../utils/status';
 import './AdminReservations.css';
 import { useToast } from '../../context/ToastContext';
+import ConfirmModal from '../../components/ConfirmModal';
 
 const STATUS_FILTERS = ['todas', 'Pendiente', 'Confirmado', 'En proceso', 'Completado', 'Cancelado'];
 
@@ -22,6 +23,7 @@ export default function AdminReservations() {
   const [editing, setEditing] = useState(null);
   const [createUserId, setCreateUserId] = useState('');
   const { showToast } = useToast();
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -82,15 +84,21 @@ export default function AdminReservations() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('¿Eliminar esta reservación?')) return;
+  const handleDelete = (id) => {
+    setDeleteConfirm({ id });
+  };
+
+  const doDelete = async () => {
+    if (!deleteConfirm) return;
     try {
-      await api.deleteReservation(id);
-      load();
+      await api.deleteReservation(deleteConfirm.id);
       showToast('Reservación eliminada', 'success');
+      setDeleteConfirm(null);
+      load();
     } catch (err) {
       setError(err.message);
       showToast(err?.message || 'Error al eliminar reservación', 'error');
+      setDeleteConfirm(null);
     }
   };
 
@@ -229,6 +237,14 @@ export default function AdminReservations() {
                 </section>
               ))
             )}
+            <ConfirmModal
+              open={!!deleteConfirm}
+              title="Eliminar reservación"
+              message="¿Eliminar esta reservación? Esta acción no se puede deshacer."
+              onConfirm={doDelete}
+              onCancel={() => setDeleteConfirm(null)}
+              confirmLabel="Eliminar"
+            />
           </>
         )}
       </div>

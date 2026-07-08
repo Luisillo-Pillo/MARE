@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Profile.css';
 import { useAuth } from '../context/AuthContext';
@@ -12,6 +12,13 @@ export default function Profile() {
     email: user?.email || '',
     phone: user?.phone || '',
   });
+  const [editMode, setEditMode] = useState(false);
+  const originalRef = useRef(form);
+
+  useEffect(() => {
+    setForm({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '' });
+    originalRef.current = { name: user?.name || '', email: user?.email || '', phone: user?.phone || '' };
+  }, [user]);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -31,6 +38,8 @@ export default function Profile() {
       await api.updateProfile(form);
       await refreshUser();
       setMessage('Perfil actualizado correctamente');
+      setEditMode(false);
+      originalRef.current = { ...form };
     } catch (err) {
       setError(err.message);
     } finally {
@@ -74,27 +83,52 @@ export default function Profile() {
         {error && <div className="alert alert-error">{error}</div>}
         {message && <div className="alert alert-success">{message}</div>}
 
-        <form className="card" onSubmit={handleProfileSubmit}>
-          <div className="form-group">
-            <label htmlFor="name">Nombre</label>
-            <input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+        <div className="card profile-card">
+          <div className="profile-header">
+            <div>
+              <h3 className="profile-name">{user?.name}
+                {user?.role === 'admin' && <span className="admin-badge">Administrador</span>}
+              </h3>
+              <div className="profile-sub">Mi cuenta</div>
+            </div>
+            {!editMode ? (
+              <button className="icon-btn edit-toggle" title="Editar perfil" onClick={() => setEditMode(true)} aria-label="Editar perfil">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 21h3l11-11-3-3L3 18v3z" stroke="#fff" strokeWidth="0" fill="#b47b5b" />
+                  <path d="M14.5 6.5l3 3" stroke="#fff" strokeWidth="0" fill="#b47b5b"/>
+                </svg>
+              </button>
+            ) : null}
           </div>
-          <div className="form-group">
-            <label htmlFor="email">Correo</label>
-            <input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="phone">Teléfono</label>
-            <input id="phone" inputMode="numeric" maxLength={10} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0,10) })} required />
-          </div>
-          <div className="form-group">
-            <label>Rol</label>
-            <input value={user?.role === 'admin' ? 'Administrador' : 'Usuario'} disabled />
-          </div>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            Guardar cambios
-          </button>
-        </form>
+
+          {!editMode ? (
+            <div className="profile-view">
+              <div className="profile-row"><strong>Nombre:</strong> <span>{user?.name}</span></div>
+              <div className="profile-row"><strong>Correo:</strong> <span>{user?.email}</span></div>
+              <div className="profile-row"><strong>Teléfono:</strong> <span>{user?.phone || '-'}</span></div>
+              <div className="profile-row"><strong>Rol:</strong> <span>{user?.role === 'admin' ? 'Administrador' : 'Usuario'}</span></div>
+            </div>
+          ) : (
+            <form onSubmit={handleProfileSubmit} className="profile-edit">
+              <div className="form-group">
+                <label>Nombre</label>
+                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+              </div>
+              <div className="form-group">
+                <label>Correo</label>
+                <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+              </div>
+              <div className="form-group">
+                <label>Teléfono</label>
+                <input inputMode="numeric" maxLength={10} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0,10) })} />
+              </div>
+              <div className="edit-actions">
+                <button type="submit" className="btn btn-primary" disabled={loading || JSON.stringify(form) === JSON.stringify(originalRef.current)}>Guardar</button>
+                <button type="button" className="btn btn-outline" onClick={() => { setForm({ ...originalRef.current }); setEditMode(false); }}>Cancelar</button>
+              </div>
+            </form>
+          )}
+        </div>
 
         <div className="card" style={{ marginTop: '1.5rem' }}>
           {!showPasswordForm ? (
@@ -140,7 +174,6 @@ export default function Profile() {
         </div>
 
         <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
-          <Link to="/eventos" className="btn btn-secondary">Mis Eventos</Link>
           <button className="btn btn-outline" onClick={handleLogout}>Cerrar sesión</button>
         </div>
       </div>

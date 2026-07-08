@@ -14,6 +14,7 @@ export default function Clients() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [confirmState, setConfirmState] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const { showToast } = useToast();
 
   const load = async () => {
@@ -54,13 +55,21 @@ export default function Clients() {
     }
   };
 
-  const handleDelete = async (id, name) => {
-    if (!confirm(`¿Eliminar a ${name} y todas sus reservaciones?`)) return;
+  const handleDelete = (id, name) => {
+    setDeleteConfirm({ id, name });
+  };
+
+  const doDelete = async () => {
+    if (!deleteConfirm) return;
     try {
-      await api.deleteClient(id);
+      await api.deleteClient(deleteConfirm.id);
+      showToast('Cliente eliminado', 'success');
+      setDeleteConfirm(null);
       load();
     } catch (err) {
       setError(err.message);
+      showToast(err?.message || 'Error al eliminar cliente', 'error');
+      setDeleteConfirm(null);
     }
   };
 
@@ -190,6 +199,15 @@ export default function Clients() {
               onConfirm={doRoleChange}
               onCancel={() => setConfirmState(null)}
             />
+            <ConfirmModal
+              open={!!deleteConfirm}
+              title="Eliminar cliente"
+              message={deleteConfirm ? `¿Eliminar a ${deleteConfirm.name} y todas sus reservaciones?` : ''}
+              onConfirm={doDelete}
+              onCancel={() => setDeleteConfirm(null)}
+              confirmLabel="Eliminar"
+            />
+            
           </>
         )}
       </div>

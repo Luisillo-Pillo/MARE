@@ -3,6 +3,8 @@ import { api } from '../services/api';
 import ReservationForm from '../components/ReservationForm';
 import { statusClass } from '../utils/status';
 import './Events.css';
+import ConfirmModal from '../components/ConfirmModal';
+import { useToast } from '../context/ToastContext';
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('es-MX', {
@@ -18,6 +20,8 @@ export default function Events() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [error, setError] = useState('');
+  const [cancelConfirm, setCancelConfirm] = useState(null);
+  const { showToast } = useToast();
 
   const load = async () => {
     try {
@@ -34,13 +38,21 @@ export default function Events() {
     load();
   }, []);
 
-  const handleCancel = async (id) => {
-    if (!confirm('¿Deseas cancelar esta reservación?')) return;
+  const handleCancel = (id) => {
+    setCancelConfirm({ id });
+  };
+
+  const doCancel = async () => {
+    if (!cancelConfirm) return;
     try {
-      await api.cancelReservation(id);
+      await api.cancelReservation(cancelConfirm.id);
+      showToast('Reservación cancelada', 'success');
+      setCancelConfirm(null);
       load();
     } catch (err) {
       setError(err.message);
+      showToast(err?.message || 'Error al cancelar reservación', 'error');
+      setCancelConfirm(null);
     }
   };
 
@@ -108,6 +120,14 @@ export default function Events() {
             ))}
           </div>
         )}
+          <ConfirmModal
+            open={!!cancelConfirm}
+            title="Cancelar reservación"
+            message="¿Deseas cancelar esta reservación?"
+            onConfirm={doCancel}
+            onCancel={() => setCancelConfirm(null)}
+            confirmLabel="Cancelar"
+          />
       </div>
     </div>
   );

@@ -1,5 +1,33 @@
-/* Styles for Profile.jsx */
-.page .page-content { }
-.card { }
-.form-group { }
-.btn { }
+/* Profile styles */
+.profile-card {
+	padding: 1.25rem;
+	border-radius: 10px;
+	background: #fff;
+	box-shadow: 0 8px 22px rgba(29,18,10,0.06);
+}
+
+.profile-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+}
+
+.profile-name { margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 0.6rem; }
+.profile-sub { color: #666; font-size: 0.9rem; }
+
+.admin-badge { background: rgba(255,138,0,0.12); color: var(--color-orange); padding: 3px 8px; border-radius: 6px; font-weight: 700; margin-left: 8px; font-size: 0.85rem; }
+
+.profile-view { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.profile-row { display: flex; gap: 0.5rem; align-items: center; }
+.profile-row strong { width: 100px; color: #333; }
+.profile-row span { color: #222; }
+
+.icon-btn { background: transparent; border: none; cursor: pointer; }
+.edit-toggle { background: var(--color-brown); color: #fff; padding: 8px; border-radius: 8px; }
+
+.profile-edit { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.8rem; }
+.profile-edit .form-group { display: flex; flex-direction: column; }
+.edit-actions { display: flex; gap: 0.75rem; margin-top: 0.25rem; }
+
+.btn-primary[disabled] { opacity: 0.6; cursor: not-allowed; }
