@@ -130,7 +130,7 @@ export default function Clients() {
                             {c.role !== 'admin' ? (
                               <button className="btn btn-primary btn-sm" onClick={() => handleRoleChange(c._id, 'admin')}>Hacer admin</button>
                             ) : (
-                              <button className="btn btn-outline btn-sm" onClick={() => handleRoleChange(c._id, 'user')}>Quitar admin</button>
+                              <button className="btn btn-outline btn-sm" onClick={() => handleRoleChange(c._id, 'usuario')}>Quitar admin</button>
                             )}
                             <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id, c.name)}>Eliminar</button>
                           </td>
@@ -170,9 +170,9 @@ export default function Clients() {
                           <td className="actions-cell">
                             <Link to={`/admin/clientes/${c._id}`} className="btn btn-secondary btn-sm">Ver perfil</Link>
                             {c.role !== 'admin' ? (
-                              <button className="btn btn-primary btn-sm" onClick={() => handleRoleChange(c._id, 'admin')}>Add admin</button>
+                              <button className="btn btn-primary btn-sm" onClick={() => handleRoleChange(c._id, 'admin')}>Hacer admin</button>
                             ) : (
-                              <button className="btn btn-outline btn-sm" onClick={() => handleRoleChange(c._id, 'user')}>Quit Admin</button>
+                              <button className="btn btn-outline btn-sm" onClick={() => handleRoleChange(c._id, 'usuario')}>Quitar admin</button>
                             )}
                             <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id, c.name)}>Eliminar</button>
                           </td>
