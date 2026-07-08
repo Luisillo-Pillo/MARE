@@ -3,6 +3,7 @@ import { api } from '../../services/api';
 import ReservationForm from '../../components/ReservationForm';
 import { statusClass } from '../../utils/status';
 import './AdminReservations.css';
+import { useToast } from '../../context/ToastContext';
 
 const STATUS_FILTERS = ['todas', 'Pendiente', 'Confirmado', 'En proceso', 'Completado', 'Cancelado'];
 
@@ -20,6 +21,7 @@ export default function AdminReservations() {
   const [showCreate, setShowCreate] = useState(false);
   const [editing, setEditing] = useState(null);
   const [createUserId, setCreateUserId] = useState('');
+  const { showToast } = useToast();
 
   const load = async () => {
     setLoading(true);
@@ -66,6 +68,11 @@ export default function AdminReservations() {
     return groups;
   }, {});
 
+  // Sort reservations in each group by date desc (newest first)
+  Object.keys(groupedReservations).forEach((k) => {
+    groupedReservations[k].sort((a, b) => new Date(b.date) - new Date(a.date));
+  });
+
   const handleStatusChange = async (id, status) => {
     try {
       await api.updateReservationStatus(id, status);
@@ -80,8 +87,10 @@ export default function AdminReservations() {
     try {
       await api.deleteReservation(id);
       load();
+      showToast('Reservación eliminada', 'success');
     } catch (err) {
       setError(err.message);
+      showToast(err?.message || 'Error al eliminar reservación', 'error');
     }
   };
 
@@ -89,20 +98,34 @@ export default function AdminReservations() {
     if (!createUserId) {
       throw new Error('Selecciona un cliente');
     }
-    await api.createAdminReservation({ ...data, userId: createUserId });
-    setShowCreate(false);
-    setCreateUserId('');
-    load();
+    try {
+      await api.createAdminReservation({ ...data, userId: createUserId });
+      showToast('Reservación creada', 'success');
+      setShowCreate(false);
+      setCreateUserId('');
+      load();
+    } catch (err) {
+      setError(err.message);
+      showToast(err?.message || 'Error al crear reservación', 'error');
+      throw err;
+    }
   };
 
   const handleEdit = async (data) => {
-    await api.updateAdminReservation(editing._id, {
-      ...data,
-      userId: editing.user?._id || editing.user,
-      status: editing.status,
-    });
-    setEditing(null);
-    load();
+    try {
+      await api.updateAdminReservation(editing._id, {
+        ...data,
+        userId: editing.user?._id || editing.user,
+        status: editing.status,
+      });
+      showToast('Reservación actualizada', 'success');
+      setEditing(null);
+      load();
+    } catch (err) {
+      setError(err.message);
+      showToast(err?.message || 'Error al actualizar reservación', 'error');
+      throw err;
+    }
   };
 
   return (

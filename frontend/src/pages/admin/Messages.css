@@ -18,6 +18,7 @@
 
 .admin-item {
 	border-left: 4px solid var(--color-orange);
+	overflow: hidden;
 }
 
 .admin-item-header {
@@ -40,4 +41,7 @@
 	background: var(--color-cream);
 	border-radius: 8px;
 	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+	max-width: 100%;
 }

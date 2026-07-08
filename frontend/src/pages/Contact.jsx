@@ -4,6 +4,7 @@ import { BUSINESS } from '../constants/packages';
 import Map from '../components/Map';
 import { useAuth } from '../context/AuthContext';
 import './Contact.css';
+import { useToast } from '../context/ToastContext';
 
 export default function Contact() {
   const { user } = useAuth();
@@ -11,9 +12,16 @@ export default function Contact() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (name === 'phone') {
+      const onlyDigits = value.replace(/\D/g, '').slice(0, 10);
+      setForm((prev) => ({ ...prev, phone: onlyDigits }));
+      return;
+    }
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -22,11 +30,16 @@ export default function Contact() {
     setSuccess('');
     setLoading(true);
     try {
-      await api.sendContact({ ...form, userId: user?._id });
+      const payload = user
+        ? { name: user.name, email: user.email, phone: user.phone || '', subject: form.subject, message: form.message, userId: user._id }
+        : { ...form };
+      await api.sendContact(payload);
+      showToast('Mensaje enviado correctamente', 'success');
       setSuccess('¡Mensaje enviado! Nos pondremos en contacto contigo pronto.');
       setForm({ name: '', email: '', phone: '', subject: '', message: '' });
     } catch (err) {
       setError(err.message);
+      showToast(err.message || 'Error al enviar mensaje', 'error');
     } finally {
       setLoading(false);
     }
@@ -70,19 +83,22 @@ export default function Contact() {
             <h3>Envíanos un mensaje</h3>
             {error && <div className="alert alert-error">{error}</div>}
             {success && <div className="alert alert-success">{success}</div>}
-
-            <div className="form-group">
-              <label htmlFor="name">Nombre</label>
-              <input id="name" name="name" value={form.name} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="email">Correo</label>
-              <input id="email" name="email" type="email" value={form.email} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="phone">Teléfono</label>
-              <input id="phone" name="phone" value={form.phone} onChange={handleChange} required placeholder="10 dígitos" />
-            </div>
+            {!user && (
+              <>
+                <div className="form-group">
+                  <label htmlFor="name">Nombre</label>
+                  <input id="name" name="name" value={form.name} onChange={handleChange} required />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="email">Correo</label>
+                  <input id="email" name="email" type="email" value={form.email} onChange={handleChange} required />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="phone">Teléfono</label>
+                  <input id="phone" name="phone" inputMode="numeric" maxLength={10} value={form.phone} onChange={handleChange} required placeholder="10 dígitos" />
+                </div>
+              </>
+            )}
             <div className="form-group">
               <label htmlFor="subject">Asunto</label>
               <input id="subject" name="subject" value={form.subject} onChange={handleChange} required />

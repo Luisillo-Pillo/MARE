@@ -85,7 +85,7 @@ export default function Profile() {
           </div>
           <div className="form-group">
             <label htmlFor="phone">Teléfono</label>
-            <input id="phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required />
+            <input id="phone" inputMode="numeric" maxLength={10} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0,10) })} required />
           </div>
           <div className="form-group">
             <label>Rol</label>

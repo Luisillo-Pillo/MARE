@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ReservationForm from '../components/ReservationForm';
 import { api } from '../services/api';
+import { useToast } from '../context/ToastContext';
 
 export default function Reservation() {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ export default function Reservation() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const defaultService = searchParams.get('paquete') || '';
+  const { showToast } = useToast();
 
   if (!user) {
     return (
@@ -35,9 +37,11 @@ export default function Reservation() {
     try {
       await api.createReservation(data);
       setLoading(false);
+      showToast('Reservación solicitada correctamente', 'success');
       navigate('/reservacion-confirmada');
     } catch (err) {
       setLoading(false);
+      showToast(err?.message || 'Error al crear reservación', 'error');
       throw err;
     }
   };
