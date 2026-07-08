@@ -31,11 +31,9 @@ export default function Reservation() {
 
   const handleSubmit = async (data) => {
     setLoading(true);
-    setSuccess('');
     try {
       await api.createReservation(data);
-      setSuccess('¡Reservación enviada! Te notificaremos cuando sea confirmada.');
-      setTimeout(() => navigate('/eventos'), 2000);
+      navigate('/reservacion-confirmada');
     } catch (err) {
       throw err;
     } finally {
@@ -47,7 +45,6 @@ export default function Reservation() {
     <div className="page">
       <div className="page-content" style={{ maxWidth: 700 }}>
         <h1 className="section-title">Reservar</h1>
-        {success && <div className="alert alert-success">{success}</div>}
         <ReservationForm
           defaultService={defaultService}
           onSubmit={handleSubmit}
