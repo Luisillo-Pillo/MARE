@@ -74,6 +74,9 @@ export default function Navbar() {
               {dropdownOpen && (
                 <div className="user-dropdown">
                   <Link to="/perfil" onClick={() => { setDropdownOpen(false); closeMenu(); }}>Perfil</Link>
+                  {!isAdmin && (
+                    <Link to="/eventos" onClick={() => { setDropdownOpen(false); closeMenu(); }}>Reservaciones</Link>
+                  )}
                   <button className="logout-button" onClick={handleLogout}>Cerrar Sesión</button>
                 </div>
               )}
