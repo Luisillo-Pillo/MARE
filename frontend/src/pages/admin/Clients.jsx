@@ -30,11 +30,16 @@ export default function Clients() {
   }, [filter, user]);
 
   const handleRoleChange = async (id, role) => {
+    const action = role === 'admin' ? 'Asignar rol de administrador' : 'Quitar rol de administrador';
+    if (!confirm(`${action}?`)) return;
     try {
       await api.updateClientRole(id, role);
       load();
     } catch (err) {
-      setError(err.message);
+      console.error('updateClientRole error', err);
+      const msg = err?.data?.message || err?.message || 'Error al cambiar el rol';
+      setError(msg);
+      alert(msg);
     }
   };
 
@@ -112,9 +117,9 @@ export default function Clients() {
                           <td className="actions-cell">
                             <Link to={`/admin/clientes/${c._id}`} className="btn btn-secondary btn-sm">Ver perfil</Link>
                             {c.role !== 'admin' ? (
-                              <button className="btn btn-primary btn-sm" onClick={() => handleRoleChange(c._id, 'admin')}>Add admin</button>
+                              <button className="btn btn-primary btn-sm" onClick={() => handleRoleChange(c._id, 'admin')}>Hacer admin</button>
                             ) : (
-                              <button className="btn btn-outline btn-sm" onClick={() => handleRoleChange(c._id, 'user')}>Quit Admin</button>
+                              <button className="btn btn-outline btn-sm" onClick={() => handleRoleChange(c._id, 'user')}>Quitar admin</button>
                             )}
                             <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id, c.name)}>Eliminar</button>
                           </td>

@@ -70,3 +70,10 @@
 	border-radius: 6px;
 	border: 1px solid #ddd;
 }
+
+/* Align reservation card contents to the left */
+.admin-item,
+.admin-item p,
+.admin-list {
+	text-align: left;
+}

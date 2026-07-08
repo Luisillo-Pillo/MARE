@@ -35,3 +35,17 @@
 	color: var(--color-orange);
 	font-weight: 600;
 }
+
+/* Password toggle smaller button */
+.password-toggle {
+	padding: 0.25rem 0.45rem;
+	font-size: 0.95rem;
+	border-radius: 6px;
+	border: 1px solid #ddd;
+	background: transparent;
+	cursor: pointer;
+}
+
+.password-toggle:hover { background: #f3efe8; }
+
+.password-toggle svg { width: 16px; height: 16px; display: block; }

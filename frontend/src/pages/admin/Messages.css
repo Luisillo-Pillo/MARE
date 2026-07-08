@@ -2,6 +2,14 @@
 .page .page-content { }
 .admin-messages { }
 
+/* Align messages content to the left */
+.admin-list,
+.admin-item,
+.admin-item p,
+.admin-item .message-body {
+	text-align: left;
+}
+
 .admin-list {
 	display: flex;
 	flex-direction: column;
