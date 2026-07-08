@@ -2,7 +2,6 @@ import { Router } from 'express';
 import ContactMessage from '../models/ContactMessage.js';
 import { authRequired, adminRequired } from '../middleware/auth.js';
 import { isValidEmail, isValidMexicanPhone, normalizePhone } from '../utils/validators.js';
-import { sendEmail, contactEmailHtml } from '../utils/email.js';
 
 const router = Router();
 
@@ -28,20 +27,6 @@ router.post('/', async (req, res) => {
       message: message.trim(),
       user: req.body.userId || null,
     });
-
-    const to = process.env.CONTACT_EMAIL || process.env.SMTP_USER;
-    if (to) {
-      try {
-        await sendEmail({
-          to,
-          subject: `Contacto MARE: ${subject}`,
-          html: contactEmailHtml(contactMessage),
-          text: message,
-        });
-      } catch (emailError) {
-        console.error('Error sending contact email:', emailError);
-      }
-    }
 
     res.status(201).json({ message: 'Mensaje enviado correctamente' });
   } catch (err) {

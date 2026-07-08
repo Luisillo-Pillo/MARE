@@ -3,11 +3,6 @@ import Reservation, { STATUSES, EVENT_TYPES, PACKAGES } from '../models/Reservat
 import User from '../models/User.js';
 import { authRequired, adminRequired } from '../middleware/auth.js';
 import { hasReservationConflict } from '../utils/reservationConflict.js';
-import {
-  sendEmail,
-  reservationCreatedBusinessHtml,
-  reservationStatusUserHtml,
-} from '../utils/email.js';
 
 const router = Router();
 const STATUS_ORDER = ['Pendiente', 'Confirmado', 'En proceso', 'Completado', 'Cancelado'];
@@ -61,21 +56,6 @@ router.post('/', authRequired, async (req, res) => {
       startTime,
       duration: Number(duration),
     });
-
-    const user = await User.findById(req.userId);
-    const businessEmail = process.env.CONTACT_EMAIL || process.env.SMTP_USER;
-    if (businessEmail) {
-      try {
-        await sendEmail({
-          to: businessEmail,
-          subject: 'Nueva reservación - MARE',
-          html: reservationCreatedBusinessHtml(reservation, user),
-          text: `Nueva reservación de ${user.name}`,
-        });
-      } catch (emailError) {
-        console.error('Error sending reservation email:', emailError);
-      }
-    }
 
     res.status(201).json(reservation);
   } catch (err) {
@@ -141,16 +121,6 @@ router.patch('/:id/cancel', authRequired, async (req, res) => {
     reservation.status = 'Cancelado';
     await reservation.save();
 
-    const user = await User.findById(reservation.user);
-    if (user?.email) {
-      await sendEmail({
-        to: user.email,
-        subject: 'Reservación cancelada - MARE',
-        html: reservationStatusUserHtml(reservation, user),
-        text: `Tu reservación fue cancelada`,
-      });
-    }
-
     res.json(reservation);
   } catch {
     res.status(500).json({ message: 'Error al cancelar reservación' });
@@ -211,16 +181,6 @@ router.post('/admin', authRequired, adminRequired, async (req, res) => {
       duration: Number(rest.duration),
     });
 
-    const businessEmail = process.env.CONTACT_EMAIL || process.env.SMTP_USER;
-    if (businessEmail) {
-      await sendEmail({
-        to: businessEmail,
-        subject: 'Nueva reservación (admin) - MARE',
-        html: reservationCreatedBusinessHtml(reservation, user),
-        text: `Nueva reservación para ${user.name}`,
-      });
-    }
-
     res.status(201).json(reservation);
   } catch {
     res.status(500).json({ message: 'Error al crear reservación' });
@@ -266,18 +226,6 @@ router.put('/admin/:id', authRequired, adminRequired, async (req, res) => {
 
     await reservation.save();
 
-    if (status && status !== oldStatus) {
-      const user = await User.findById(reservation.user);
-      if (user?.email) {
-        await sendEmail({
-          to: user.email,
-          subject: 'Actualización de reservación - MARE',
-          html: reservationStatusUserHtml(reservation, user),
-          text: `Tu reservación ahora está: ${status}`,
-        });
-      }
-    }
-
     res.json(reservation);
   } catch {
     res.status(500).json({ message: 'Error al actualizar reservación' });
@@ -297,18 +245,6 @@ router.patch('/admin/:id/status', authRequired, adminRequired, async (req, res) 
     const oldStatus = reservation.status;
     reservation.status = status;
     await reservation.save();
-
-    if (status !== oldStatus) {
-      const user = await User.findById(reservation.user);
-      if (user?.email) {
-        await sendEmail({
-          to: user.email,
-          subject: 'Actualización de reservación - MARE',
-          html: reservationStatusUserHtml(reservation, user),
-          text: `Tu reservación ahora está: ${status}`,
-        });
-      }
-    }
 
     res.json(reservation);
   } catch {
