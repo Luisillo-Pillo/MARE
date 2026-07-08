@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
@@ -8,6 +8,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const userMenuRef = useRef(null);
 
   const handleLogout = () => {
     logout();
@@ -17,6 +18,17 @@ export default function Navbar() {
   };
 
   const closeMenu = () => setMenuOpen(false);
+
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [dropdownOpen]);
 
   return (
     <nav className="navbar">
@@ -42,7 +54,7 @@ export default function Navbar() {
           <Link to="/reservar" onClick={closeMenu}>Reserva</Link>
 
           {user ? (
-            <div className="user-menu">
+            <div className="user-menu" ref={userMenuRef}>
               <button
                 className="user-menu-btn"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -52,15 +64,7 @@ export default function Navbar() {
               {dropdownOpen && (
                 <div className="user-dropdown">
                   <Link to="/perfil" onClick={() => { setDropdownOpen(false); closeMenu(); }}>Perfil</Link>
-                  <Link to="/eventos" onClick={() => { setDropdownOpen(false); closeMenu(); }}>Eventos</Link>
-                  {isAdmin && (
-                    <>
-                      <Link to="/admin/reservaciones" onClick={() => { setDropdownOpen(false); closeMenu(); }}>Reservaciones</Link>
-                      <Link to="/admin/clientes" onClick={() => { setDropdownOpen(false); closeMenu(); }}>Clientes</Link>
-                      <Link to="/admin/mensajes" onClick={() => { setDropdownOpen(false); closeMenu(); }}>Mensajes</Link>
-                    </>
-                  )}
-                  <button onClick={handleLogout}>Cerrar Sesión</button>
+                  <button className="logout-button" onClick={handleLogout}>Cerrar Sesión</button>
                 </div>
               )}
             </div>

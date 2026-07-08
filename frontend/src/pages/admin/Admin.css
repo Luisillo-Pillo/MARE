@@ -117,6 +117,18 @@
   gap: 1rem;
 }
 
+.admin-search-input {
+  padding: 0.75rem 1rem;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  min-width: 260px;
+  max-width: 320px;
+}
+
+.admin-reservation-section {
+  margin-bottom: 2rem;
+}
+
 @media (max-width: 768px) {
   .admin-table th,
   .admin-table td {

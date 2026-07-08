@@ -49,6 +49,24 @@
   font-style: italic;
 }
 
+.home-admin-actions {
+  padding: 3rem 0;
+  background: #f8f2eb;
+}
+
+.admin-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .admin-actions-row {
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 768px) {
   .about-grid {
     grid-template-columns: 1fr;

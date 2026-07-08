@@ -1,4 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
@@ -19,6 +20,10 @@ function AppRoutes() {
   const isAuthPage = ['/iniciar-sesion', '/registro'].includes(location.pathname);
   const showBack = !isHome;
   const alwaysHomeBack = isAuthPage;
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0 });
+  }, [location.pathname]);
 
   return (
     <Layout showBack={showBack} alwaysHomeBack={alwaysHomeBack}>

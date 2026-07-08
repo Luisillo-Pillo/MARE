@@ -14,6 +14,7 @@ export default function AdminReservations() {
   const [reservations, setReservations] = useState([]);
   const [clients, setClients] = useState([]);
   const [statusFilter, setStatusFilter] = useState('todas');
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreate, setShowCreate] = useState(false);
@@ -39,6 +40,31 @@ export default function AdminReservations() {
   useEffect(() => {
     load();
   }, [statusFilter]);
+
+  const filteredReservations = reservations.filter((r) => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
+    const values = [
+      r.user?.name,
+      r.user?.email,
+      formatDate(r.date),
+      r.eventType,
+      r.customEventType,
+      r.service,
+      r.description,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return values.includes(term);
+  });
+
+  const groupedReservations = filteredReservations.reduce((groups, reservation) => {
+    const key = reservation.status || 'Sin estado';
+    groups[key] = groups[key] || [];
+    groups[key].push(reservation);
+    return groups;
+  }, {});
 
   const handleStatusChange = async (id, status) => {
     try {
@@ -97,9 +123,18 @@ export default function AdminReservations() {
               </button>
             ))}
           </div>
-          <button className="btn btn-primary" onClick={() => { setShowCreate(true); setEditing(null); }}>
-            Nueva reservación
-          </button>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              type="search"
+              className="admin-search-input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar por cliente, fecha, tipo o servicio"
+            />
+            <button className="btn btn-primary" onClick={() => { setShowCreate(true); setEditing(null); }}>
+              Nueva reservación
+            </button>
+          </div>
         </div>
 
         {showCreate && (
@@ -134,33 +169,44 @@ export default function AdminReservations() {
         {loading ? (
           <p>Cargando...</p>
         ) : (
-          <div className="admin-list">
-            {reservations.map((r) => (
-              <div key={r._id} className="card admin-item">
-                <div className="admin-item-header">
-                  <span className={`status-badge ${statusClass(r.status)}`}>{r.status}</span>
-                  <select
-                    value={r.status}
-                    onChange={(e) => handleStatusChange(r._id, e.target.value)}
-                    className="status-select"
-                  >
-                    {STATUS_FILTERS.filter((s) => s !== 'todas').map((s) => (
-                      <option key={s} value={s}>{s}</option>
+          <>
+            {Object.keys(groupedReservations).length === 0 ? (
+              <p>No se encontraron reservaciones que coincidan con tu búsqueda.</p>
+            ) : (
+              Object.keys(groupedReservations).map((status) => (
+                <section key={status} className="admin-reservation-section">
+                  <h2 style={{ marginBottom: '1rem', color: 'var(--color-brown)' }}>{status}</h2>
+                  <div className="admin-list">
+                    {groupedReservations[status].map((r) => (
+                      <div key={r._id} className="card admin-item">
+                        <div className="admin-item-header">
+                          <span className={`status-badge ${statusClass(r.status)}`}>{r.status}</span>
+                          <select
+                            value={r.status}
+                            onChange={(e) => handleStatusChange(r._id, e.target.value)}
+                            className="status-select"
+                          >
+                            {STATUS_FILTERS.filter((s) => s !== 'todas').map((s) => (
+                              <option key={s} value={s}>{s}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <p><strong>Cliente:</strong> {r.user?.name} ({r.user?.email})</p>
+                        <p><strong>Fecha:</strong> {formatDate(r.date)} — {r.startTime} ({r.duration} hrs)</p>
+                        <p><strong>Tipo:</strong> {r.eventType}{r.customEventType ? ` - ${r.customEventType}` : ''}</p>
+                        <p><strong>Servicio:</strong> {r.service}</p>
+                        <p><strong>Descripción:</strong> {r.description}</p>
+                        <div className="actions-cell">
+                          <button className="btn btn-secondary btn-sm" onClick={() => { setEditing(r); setShowCreate(false); }}>Editar</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => handleDelete(r._id)}>Eliminar</button>
+                        </div>
+                      </div>
                     ))}
-                  </select>
-                </div>
-                <p><strong>Cliente:</strong> {r.user?.name} ({r.user?.email})</p>
-                <p><strong>Fecha:</strong> {formatDate(r.date)} — {r.startTime} ({r.duration} hrs)</p>
-                <p><strong>Tipo:</strong> {r.eventType}{r.customEventType ? ` - ${r.customEventType}` : ''}</p>
-                <p><strong>Servicio:</strong> {r.service}</p>
-                <p><strong>Descripción:</strong> {r.description}</p>
-                <div className="actions-cell">
-                  <button className="btn btn-secondary btn-sm" onClick={() => { setEditing(r); setShowCreate(false); }}>Editar</button>
-                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(r._id)}>Eliminar</button>
-                </div>
-              </div>
-            ))}
-          </div>
+                  </div>
+                </section>
+              ))
+            )}
+          </>
         )}
       </div>
     </div>

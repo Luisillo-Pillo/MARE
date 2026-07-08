@@ -124,6 +124,11 @@
   font-size: 0.95rem;
 }
 
+.user-dropdown button.logout-button {
+  color: #c0392b;
+  font-weight: 700;
+}
+
 .user-dropdown a:hover,
 .user-dropdown button:hover {
   background: var(--color-cream);

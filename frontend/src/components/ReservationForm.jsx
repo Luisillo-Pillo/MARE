@@ -6,6 +6,7 @@ function toFormState(initial = {}, defaultService = '') {
   const date = init.date ? new Date(init.date).toISOString().split('T')[0] : '';
   return {
     service: init.service || defaultService || '',
+    customService: init.service === 'Otro' ? (init.customService || '') : init.customService || '',
     eventType: init.eventType || '',
     customEventType: init.customEventType || '',
     description: init.description || '',
@@ -36,6 +37,7 @@ export default function ReservationForm({
     try {
       await onSubmit({
         ...form,
+        service: form.service === 'Otro' ? form.customService : form.service,
         duration: Number(form.duration),
         customEventType: form.eventType === 'Otro' ? form.customEventType : '',
       });
@@ -51,12 +53,27 @@ export default function ReservationForm({
       <div className="form-group">
         <label htmlFor="service">Servicio solicitado</label>
         <select id="service" name="service" value={form.service} onChange={handleChange} required>
-          <option value="">Selecciona un paquete</option>
+          <option value="">Selecciona un paquete o elige otro servicio</option>
           {PACKAGES.map((p) => (
             <option key={p.id} value={p.id}>{p.id}</option>
           ))}
+          <option value="Otro">Otro servicio personalizado</option>
         </select>
       </div>
+
+      {form.service === 'Otro' && (
+        <div className="form-group">
+          <label htmlFor="customService">Describe el servicio</label>
+          <input
+            id="customService"
+            name="customService"
+            value={form.customService}
+            onChange={handleChange}
+            required
+            placeholder="Ej. Taquizas de pastor para 100 personas"
+          />
+        </div>
+      )}
 
       <div className="form-group">
         <label htmlFor="eventType">Tipo de evento</label>

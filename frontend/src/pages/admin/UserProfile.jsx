@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import ReservationForm from '../../components/ReservationForm';
 import { api } from '../../services/api';
 import { statusClass } from '../../utils/status';
 import './Admin.css';
@@ -17,12 +18,24 @@ export default function UserProfile() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showCreate, setShowCreate] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const loadProfile = async () => {
+    setLoading(true);
+    try {
+      const profileData = await api.getClientProfile(id);
+      setData(profileData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    api.getClientProfile(id)
-      .then(setData)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+    loadProfile();
   }, [id]);
 
   if (loading) return <div className="page"><div className="page-content">Cargando...</div></div>;
@@ -30,6 +43,21 @@ export default function UserProfile() {
   if (!data) return null;
 
   const { user, reservations } = data;
+
+  const handleCreateReservation = async (formData) => {
+    setCreating(true);
+    setSuccessMessage('');
+    try {
+      await api.createAdminReservation({ ...formData, userId: user._id });
+      setSuccessMessage('Reservación creada correctamente.');
+      setShowCreate(false);
+      await loadProfile();
+    } catch (err) {
+      throw err;
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <div className="page">
@@ -42,7 +70,25 @@ export default function UserProfile() {
           <p><strong>Teléfono:</strong> {user.phone}</p>
           <p><strong>Rol:</strong> {user.role === 'admin' ? 'Administrador' : 'Usuario'}</p>
           <p><strong>Registrado:</strong> {formatDate(user.createdAt)}</p>
+          {user.role !== 'admin' && (
+            <button className="btn btn-primary" onClick={() => setShowCreate((prev) => !prev)}>
+              {showCreate ? 'Cancelar nueva reservación' : 'Agendar reservación'}
+            </button>
+          )}
         </div>
+
+        {successMessage && <div className="alert alert-success">{successMessage}</div>}
+
+        {showCreate && user.role !== 'admin' && (
+          <div className="card" style={{ marginBottom: '2rem' }}>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--color-brown)' }}>Reservar para {user.name}</h3>
+            <ReservationForm
+              onSubmit={handleCreateReservation}
+              submitLabel={creating ? 'Creando...' : 'Crear reservación'}
+              loading={creating}
+            />
+          </div>
+        )}
 
         <h2 style={{ color: 'var(--color-brown)', marginBottom: '1rem' }}>Reservaciones</h2>
         {reservations.length === 0 ? (

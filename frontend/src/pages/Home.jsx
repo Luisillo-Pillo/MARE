@@ -1,12 +1,43 @@
+import { useAuth } from '../context/AuthContext';
 import Carousel from '../components/Carousel';
 import PackageCard from '../components/PackageCard';
 import { PACKAGES } from '../constants/packages';
 import './Home.css';
 
 export default function Home() {
+  const { user } = useAuth();
+
   return (
     <div className="home">
       <Carousel />
+
+      {user?.role === 'admin' ? (
+        <section className="home-admin-actions">
+          <div className="page-content">
+            <h2 className="section-title">Bienvenido, administrador</h2>
+            <p>Accede rápidamente a las secciones de administración.</p>
+            <div className="admin-actions-row">
+              <a href="/admin/mensajes" className="btn btn-primary">Mensajes</a>
+              <a href="/admin/clientes" className="btn btn-secondary">Clientes</a>
+              <a href="/admin/reservaciones" className="btn btn-primary">Reservaciones</a>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {user?.role === 'admin' && (
+        <section className="home-admin-actions">
+          <div className="page-content">
+            <h2 className="section-title">Bienvenido, administrador</h2>
+            <p>Accede rápido a los paneles más importantes de MARE.</p>
+            <div className="admin-actions-row">
+              <Link to="/admin/mensajes" className="btn btn-primary">Mensajes</Link>
+              <Link to="/admin/clientes" className="btn btn-secondary">Clientes</Link>
+              <Link to="/admin/reservaciones" className="btn btn-primary">Reservaciones</Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section id="quienes-somos" className="about-section">
         <div className="page-content">
