@@ -1,4 +1,5 @@
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import Carousel from '../components/Carousel';
 import PackageCard from '../components/PackageCard';
 import { PACKAGES } from '../constants/packages';
@@ -11,25 +12,11 @@ export default function Home() {
     <div className="home">
       <Carousel />
 
-      {user?.role === 'admin' ? (
-        <section className="home-admin-actions">
-          <div className="page-content">
-            <h2 className="section-title">Bienvenido, administrador</h2>
-            <p>Accede rápidamente a las secciones de administración.</p>
-            <div className="admin-actions-row">
-              <a href="/admin/mensajes" className="btn btn-primary">Mensajes</a>
-              <a href="/admin/clientes" className="btn btn-secondary">Clientes</a>
-              <a href="/admin/reservaciones" className="btn btn-primary">Reservaciones</a>
-            </div>
-          </div>
-        </section>
-      ) : null}
-
       {user?.role === 'admin' && (
         <section className="home-admin-actions">
           <div className="page-content">
             <h2 className="section-title">Bienvenido, administrador</h2>
-            <p>Accede rápido a los paneles más importantes de MARE.</p>
+            <p>Accede rápidamente a las secciones de administración.</p>
             <div className="admin-actions-row">
               <Link to="/admin/mensajes" className="btn btn-primary">Mensajes</Link>
               <Link to="/admin/clientes" className="btn btn-secondary">Clientes</Link>
