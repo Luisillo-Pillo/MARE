@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './Reservation.css';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ReservationForm from '../components/ReservationForm';

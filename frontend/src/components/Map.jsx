@@ -2,6 +2,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { BUSINESS } from '../constants/packages';
 import 'leaflet/dist/leaflet.css';
+import './Map.css';
 
 const icon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { EVENT_TYPES, PACKAGES, DURATION_OPTIONS, TIME_OPTIONS } from '../constants/packages';
+import './ReservationForm.css';
 
 function toFormState(initial = {}, defaultService = '') {
   const init = initial || {};

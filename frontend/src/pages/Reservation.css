@@ -1,26 +1,9 @@
-/* Estilos mínimos para la página de confirmación */
+/* Estilos mínimos para la página de reservación */
 .page-content .card {
   text-align: center;
 }
 
-.section-title {
-  font-size: 1.6rem;
-  margin-bottom: 0.5rem;
-}
-
-.btn {
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-}
-
-.btn-primary {
-  background: var(--color-brown);
-  color: var(--color-cream);
-  border: none;
-}
-
-.btn-secondary {
-  background: transparent;
-  border: 2px solid var(--color-brown);
-  color: var(--color-brown);
+/* Page-specific tweaks (buttons use global .btn variants in index.css) */
+.reservation-note {
+  margin-top: 1rem;
 }

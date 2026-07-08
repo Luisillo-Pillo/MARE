@@ -1,0 +1,37 @@
+/* Styles for Register.jsx */
+.auth-page { max-width: 420px; margin: 0 auto; }
+
+/* From Auth.css */
+.auth-page {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	padding-top: 3rem;
+}
+
+.auth-card {
+	width: 100%;
+	max-width: 440px;
+}
+
+.auth-card h1 {
+	text-align: center;
+	color: var(--color-brown);
+	margin-bottom: 1.5rem;
+}
+
+.auth-card .btn {
+	width: 100%;
+	margin-top: 0.5rem;
+}
+
+.auth-link {
+	text-align: center;
+	margin-top: 1.25rem;
+	font-size: 0.95rem;
+}
+
+.auth-link a {
+	color: var(--color-orange);
+	font-weight: 600;
+}

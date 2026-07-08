@@ -1,0 +1,3 @@
+/* Styles for ReservationConfirmation.jsx */
+.confirmation { text-align: center; }
+.confirmation-actions { display:flex; gap:1rem; justify-content:center; }

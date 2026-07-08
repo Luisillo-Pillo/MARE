@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../services/api';
-import './Admin.css';
+import './Messages.css';
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleString('es-MX');

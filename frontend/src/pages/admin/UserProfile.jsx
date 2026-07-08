@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import ReservationForm from '../../components/ReservationForm';
 import { api } from '../../services/api';
 import { statusClass } from '../../utils/status';
-import './Admin.css';
+import './UserProfile.css';
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('es-MX', {

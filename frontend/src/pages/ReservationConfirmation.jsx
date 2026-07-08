@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import './Reservation.css';
+import './ReservationConfirmation.css';
 
 export default function ReservationConfirmation() {
   return (

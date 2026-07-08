@@ -1,0 +1,12 @@
+/* Styles for UserProfile.jsx */
+.user-profile { }
+
+.admin-list {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.admin-item {
+	border-left: 4px solid var(--color-orange);
+}

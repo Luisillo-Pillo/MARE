@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import ReservationForm from '../../components/ReservationForm';
 import { statusClass } from '../../utils/status';
-import './Admin.css';
+import './AdminReservations.css';
 
 const STATUS_FILTERS = ['todas', 'Pendiente', 'Confirmado', 'En proceso', 'Completado', 'Cancelado'];
 
