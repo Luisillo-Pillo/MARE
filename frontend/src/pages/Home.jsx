@@ -1,5 +1,4 @@
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
 import Carousel from '../components/Carousel';
 import PackageCard from '../components/PackageCard';
 import { PACKAGES } from '../constants/packages';
@@ -11,20 +10,6 @@ export default function Home() {
   return (
     <div className="home">
       <Carousel />
-
-      {user?.role === 'admin' && (
-        <section className="home-admin-actions">
-          <div className="page-content">
-            <h2 className="section-title">Bienvenido, administrador</h2>
-            <p>Accede rápidamente a las secciones de administración.</p>
-            <div className="admin-actions-row">
-              <Link to="/admin/mensajes" className="btn btn-primary">Mensajes</Link>
-              <Link to="/admin/clientes" className="btn btn-secondary">Clientes</Link>
-              <Link to="/admin/reservaciones" className="btn btn-primary">Reservaciones</Link>
-            </div>
-          </div>
-        </section>
-      )}
 
       <section id="quienes-somos" className="about-section">
         <div className="page-content">
