@@ -7,6 +7,8 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' });
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [exists, setExists] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -16,6 +18,18 @@ export default function Register() {
     setError('');
     setExists(false);
     setLoading(true);
+    // Validate phone digits and length
+    const digits = (form.phone || '').replace(/\D/g, '');
+    if (digits.length !== 10) {
+      setError('El teléfono debe tener exactamente 10 dígitos.');
+      setLoading(false);
+      return;
+    }
+    if (form.password !== confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      setLoading(false);
+      return;
+    }
     try {
       await register(form);
       navigate('/');
@@ -66,21 +80,58 @@ export default function Register() {
               <label htmlFor="phone">Teléfono (10 dígitos)</label>
               <input
                 id="phone"
+                inputMode="numeric"
+                maxLength={10}
                 value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                onChange={(e) => {
+                  const onlyDigits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                  setForm({ ...form, phone: onlyDigits });
+                }}
                 required
                 placeholder="4491234567"
               />
             </div>
             <div className="form-group">
               <label htmlFor="password">Contraseña</label>
-              <input
-                id="password"
-                type="password"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                required
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  required
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => setShowPassword((s) => !s)}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  style={{ padding: '0.4rem 0.6rem' }}
+                >
+                  {showPassword ? '🙈' : '👁'}
+                </button>
+              </div>
+            </div>
+            <div className="form-group">
+              <label htmlFor="confirmPassword">Confirmar contraseña</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  id="confirmPassword"
+                  type={showPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => setShowPassword((s) => !s)}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  style={{ padding: '0.4rem 0.6rem' }}
+                >
+                  {showPassword ? '🙈' : '👁'}
+                </button>
+              </div>
             </div>
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? 'Registrando...' : 'Registrarse'}
