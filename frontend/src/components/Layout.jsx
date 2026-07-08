@@ -7,15 +7,7 @@ export default function Layout({ children, showBack = false, alwaysHomeBack = fa
   const navigate = useNavigate();
 
   const handleBack = () => {
-    if (alwaysHomeBack) {
-      navigate('/');
-      return;
-    }
-    if (window.history.length > 2) {
-      navigate(-1);
-    } else {
-      navigate('/');
-    }
+    navigate('/');
   };
 
   return (
