@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { api } from '../../services/api';
 import ReservationForm from '../../components/ReservationForm';
 import { statusClass } from '../../utils/status';
@@ -25,8 +25,11 @@ export default function AdminReservations() {
 	const { showToast } = useToast();
 	const [deleteConfirm, setDeleteConfirm] = useState(null);
 
+	const searchInputRef = useRef(null);
+
 	const load = async () => {
 		setLoading(true);
+		setError(''); // Limpiar error anterior
 		try {
 			const [resData, clientsData] = await Promise.all([
 				api.getAdminReservations(statusFilter === 'todas' ? '' : statusFilter),
@@ -35,7 +38,7 @@ export default function AdminReservations() {
 			setReservations(resData);
 			setClients(clientsData);
 		} catch (err) {
-			setError(err.message);
+			setError(err?.message || 'Error al cargar los datos');
 		} finally {
 			setLoading(false);
 		}
@@ -45,42 +48,57 @@ export default function AdminReservations() {
 		load();
 	}, [statusFilter]);
 
-	const filteredReservations = reservations.filter((r) => {
+	const filteredReservations = useMemo(() => {
 		const term = searchTerm.trim().toLowerCase();
-		if (!term) return true;
-		const values = [
-			r.user?.name,
-			r.user?.email,
-			formatDate(r.date),
-			r.eventType,
-			r.customEventType,
-			r.service,
-			r.description,
-		]
-			.filter(Boolean)
-			.join(' ')
-			.toLowerCase();
-		return values.includes(term);
-	});
+		if (!term) return reservations;
 
-	const groupedReservations = filteredReservations.reduce((groups, reservation) => {
-		const key = reservation.status || 'Sin estado';
-		groups[key] = groups[key] || [];
-		groups[key].push(reservation);
+		return reservations.filter((r) => {
+			const values = [
+				r.user?.name,
+				r.user?.email,
+				formatDate(r.date),
+				r.eventType,
+				r.customEventType,
+				r.service,
+				r.description,
+				r.address,
+			]
+				.filter(Boolean)
+				.join(' ')
+				.toLowerCase();
+			return values.includes(term);
+		});
+	}, [reservations, searchTerm]);
+
+	const groupedReservations = useMemo(() => {
+		const groups = filteredReservations.reduce((groups, reservation) => {
+			const key = reservation.status || 'Sin estado';
+			groups[key] = groups[key] || [];
+			groups[key].push(reservation);
+			return groups;
+		}, {});
+
+		// Ordenar cada grupo por fecha descendente
+		Object.keys(groups).forEach((k) => {
+			groups[k].sort((a, b) => new Date(b.date) - new Date(a.date));
+		});
+
 		return groups;
-	}, {});
+	}, [filteredReservations]);
 
-	// Sort reservations in each group by date desc (newest first)
-	Object.keys(groupedReservations).forEach((k) => {
-		groupedReservations[k].sort((a, b) => new Date(b.date) - new Date(a.date));
-	});
+	const handleSearch = () => {
+		// Solo hace focus (el filtro es reactivo)
+		searchInputRef.current?.focus();
+	};
 
 	const handleStatusChange = async (id, status) => {
 		try {
 			await api.updateReservationStatus(id, status);
 			load();
+			showToast('Estado actualizado', 'success');
 		} catch (err) {
-			setError(err.message);
+			setError(err?.message || 'Error al actualizar estado');
+			showToast(err?.message || 'Error al actualizar estado', 'error');
 		}
 	};
 
@@ -92,11 +110,11 @@ export default function AdminReservations() {
 		if (!deleteConfirm) return;
 		try {
 			await api.deleteReservation(deleteConfirm.id);
-			showToast('Reservación eliminada', 'success');
+			showToast('Reservación eliminada correctamente', 'success');
 			setDeleteConfirm(null);
 			load();
 		} catch (err) {
-			setError(err.message);
+			setError(err?.message || 'Error al eliminar reservación');
 			showToast(err?.message || 'Error al eliminar reservación', 'error');
 			setDeleteConfirm(null);
 		}
@@ -104,18 +122,18 @@ export default function AdminReservations() {
 
 	const handleCreate = async (data) => {
 		if (!createUserId) {
-			throw new Error('Selecciona un cliente');
+			showToast('Debes seleccionar un cliente', 'error');
+			return;
 		}
 		try {
 			await api.createAdminReservation({ ...data, userId: createUserId });
-			showToast('Reservación creada', 'success');
+			showToast('Reservación creada correctamente', 'success');
 			setShowCreate(false);
 			setCreateUserId('');
 			load();
 		} catch (err) {
-			setError(err.message);
+			setError(err?.message || 'Error al crear reservación');
 			showToast(err?.message || 'Error al crear reservación', 'error');
-			throw err;
 		}
 	};
 
@@ -126,13 +144,12 @@ export default function AdminReservations() {
 				userId: editing.user?._id || editing.user,
 				status: editing.status,
 			});
-			showToast('Reservación actualizada', 'success');
+			showToast('Reservación actualizada correctamente', 'success');
 			setEditing(null);
 			load();
 		} catch (err) {
-			setError(err.message);
+			setError(err?.message || 'Error al actualizar reservación');
 			showToast(err?.message || 'Error al actualizar reservación', 'error');
-			throw err;
 		}
 	};
 
@@ -154,17 +171,38 @@ export default function AdminReservations() {
 							</button>
 						))}
 					</div>
+					<button className="btn btn-primary nueva-reservacion" onClick={() => { setShowCreate(true); setEditing(null); }}>
+						Nueva reservación
+					</button>
 					<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-						<input
-							type="search"
-							className="admin-search-input"
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-							placeholder="Buscar reservación..."
-						/>
-						<button className="btn btn-primary" onClick={() => { setShowCreate(true); setEditing(null); }}>
-							Nueva reservación
-						</button>
+						<div className="search-input-reservation-wrapper">
+							<input
+								type="search"
+								className="admin-search-input-reservation"
+								ref={searchInputRef}
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') {
+										e.preventDefault();
+										handleSearch();
+									}
+								}}
+								placeholder="Buscar reservación..."
+								aria-label="Buscar reservación..."
+							/>
+							<button
+								type="button"
+								className="search-icon-btn-reservation"
+								onClick={handleSearch}
+								aria-label="Buscar"
+							>
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M21 21L16.65 16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+									<circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+								</svg>
+							</button>
+						</div>
 					</div>
 				</div>
 
@@ -173,15 +211,27 @@ export default function AdminReservations() {
 						<h3 style={{ marginBottom: '1rem', color: 'var(--color-brown)' }}>Crear reservación</h3>
 						<div className="form-group">
 							<label>Cliente</label>
-							<select value={createUserId} onChange={(e) => setCreateUserId(e.target.value)} required>
+							<select
+								value={createUserId}
+								onChange={(e) => setCreateUserId(e.target.value)}
+								required
+							>
 								<option value="">Selecciona cliente</option>
 								{clients.map((c) => (
-									<option key={c._id} value={c._id}>{c.name} — {c.email}</option>
+									<option key={c._id} value={c._id}>
+										{c.name} — {c.email}
+									</option>
 								))}
 							</select>
 						</div>
 						<ReservationForm onSubmit={handleCreate} submitLabel="Crear reservación" />
-						<button className="btn btn-outline" style={{ marginTop: '1rem' }} onClick={() => setShowCreate(false)}>Cancelar</button>
+						<button
+							className="btn btn-outline"
+							style={{ marginTop: '1rem' }}
+							onClick={() => { setShowCreate(false); setCreateUserId(''); }}
+						>
+							Cancelar
+						</button>
 					</div>
 				)}
 
@@ -193,12 +243,18 @@ export default function AdminReservations() {
 							onSubmit={handleEdit}
 							submitLabel="Guardar cambios"
 						/>
-						<button className="btn btn-outline" style={{ marginTop: '1rem' }} onClick={() => setEditing(null)}>Cancelar</button>
+						<button
+							className="btn btn-outline"
+							style={{ marginTop: '1rem' }}
+							onClick={() => setEditing(null)}
+						>
+							Cancelar
+						</button>
 					</div>
 				)}
 
 				{loading ? (
-					<p>Cargando...</p>
+					<p>Cargando reservaciones...</p>
 				) : (
 					<>
 						{Object.keys(groupedReservations).length === 0 ? (
@@ -213,7 +269,7 @@ export default function AdminReservations() {
 												<div className="admin-item-header">
 													<span className={`status-badge ${statusClass(r.status)}`}>{r.status}</span>
 													<select
-														value={r.status}
+														value={r.status || ''}
 														onChange={(e) => handleStatusChange(r._id, e.target.value)}
 														className="status-select"
 													>
@@ -230,8 +286,18 @@ export default function AdminReservations() {
 												<p><strong>Ubicación:</strong> {r.address}</p>
 												<p><strong>Descripción:</strong> {r.description}</p>
 												<div className="actions-cell">
-													<button className="btn btn-secondary btn-sm" onClick={() => { setEditing(r); setShowCreate(false); }}>Editar</button>
-													<button className="btn btn-danger btn-sm" onClick={() => handleDelete(r._id)}>Eliminar</button>
+													<button
+														className="btn btn-secondary btn-sm"
+														onClick={() => { setEditing(r); setShowCreate(false); }}
+													>
+														Editar
+													</button>
+													<button
+														className="btn btn-danger btn-sm"
+														onClick={() => handleDelete(r._id)}
+													>
+														Eliminar
+													</button>
 												</div>
 											</div>
 										))}
@@ -239,6 +305,7 @@ export default function AdminReservations() {
 								</section>
 							))
 						)}
+
 						<ConfirmModal
 							open={!!deleteConfirm}
 							title="Eliminar reservación"

@@ -1,101 +1,103 @@
 /* Styles for Clients.jsx */
-.clients-list { }
-.admin-clients { }
+.clients-list {}
+
+.admin-clients {}
 
 /* Table and admin utilities */
 .admin-table-wrap {
-	overflow-x: auto;
+    overflow-x: auto;
 }
 
 .admin-table {
-	width: 100%;
-	border-collapse: collapse;
-	background: var(--color-white);
-	border-radius: var(--radius);
-	overflow: hidden;
-	box-shadow: var(--shadow);
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--color-white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
 }
 
 .admin-table th,
 .admin-table td {
-	padding: 0.85rem 1rem;
-	text-align: left;
-	border-bottom: 1px solid #eee;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
 }
 
 .admin-table th {
-	background: var(--color-brown);
-	color: var(--color-cream);
-	font-weight: 600;
+    background: var(--color-brown);
+    color: var(--color-cream);
+    font-weight: 600;
 }
 
 .admin-table select {
-	padding: 0.35rem 0.5rem;
-	border-radius: 6px;
-	border: 1px solid #914721;
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #914721;
 }
 
 .admin-filters {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem;
-	margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .admin-filters button {
-	padding: 0.5rem 1rem;
-	border: 2px solid var(--color-gold);
-	background: var(--color-white);
-	color: var(--color-brown);
-	border-radius: 8px;
-	cursor: pointer;
-	font-weight: 500;
-	transition: 0.2s;
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--color-gold);
+    background: var(--color-white);
+    color: var(--color-brown);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.2s;
 }
 
 .admin-filters button.active,
 .admin-filters button:hover {
-	background: var(--color-gold);
-	color: var(--color-dark);
+    background: var(--color-gold);
+    color: var(--color-dark);
 }
 
 .admin-toolbar {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	flex-wrap: wrap;
-	gap: 1rem;
-	margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .admin-search-input {
-	padding: 0.75rem 1rem;
-	border: 1px solid #914721;
-	border-top-left-radius: 10px;
-	border-bottom-left-radius: 10px;
-	min-width: 260px;
-	max-width: 320px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #914721;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    min-width: 260px;
+    max-width: 320px;
 }
 
-.search-icon-btn{
+.search-icon-btn {
     padding: 0.75rem 1rem;
     border: 1px solid #914721;
     border-left: 0px;
     border-top-right-radius: 10px;
-	border-bottom-right-radius: 10px;
+    border-bottom-right-radius: 10px;
     color: #914721;
 }
 
 .actions-cell {
-	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 @media (max-width: 768px) {
-	.admin-table th,
-	.admin-table td {
-		padding: 0.6rem 0.5rem;
-		font-size: 0.85rem;
-	}
+
+    .admin-table th,
+    .admin-table td {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.85rem;
+    }
 }
