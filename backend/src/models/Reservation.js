@@ -13,6 +13,7 @@ const reservationSchema = new mongoose.Schema(
     description: { type: String, required: true, trim: true },
     date: { type: Date, required: true },
     startTime: { type: String, required: true },
+    address: { type: String, required: true, trim: true },
     duration: { type: Number, required: true, min: 0.5 },
     status: { type: String, enum: STATUSES, default: 'Pendiente' },
   },

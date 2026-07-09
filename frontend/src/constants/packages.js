@@ -29,6 +29,7 @@ export const PACKAGES = [
     id: 'Paquete 3',
     title: 'Paquete 3',
     items: [
+      '2 HORAS DE SERVICIO',
       'Rib eye, Sirloin, Bisteck, Cecina, Chorizo español.',
       'Complementos 12 variedades.',
       'Plato, vaso y servilletas.',
@@ -41,6 +42,7 @@ export const PACKAGES = [
     id: 'Paquete 4',
     title: 'Paquete 4',
     items: [
+      '2 HORAS DE SERVICIO',
       'Birria, Lechón, Barbacoa de borrego.',
       'Complementos 12 variedades.',
       'Plato, vaso y servilletas.',

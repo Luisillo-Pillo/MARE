@@ -8,14 +8,14 @@ const router = Router();
 const STATUS_ORDER = ['Pendiente', 'Confirmado', 'En proceso', 'Completado', 'Cancelado'];
 
 function validateReservationBody(body) {
-  const { service, eventType, customEventType, description, date, startTime, duration } = body;
+  const { service, eventType, customEventType, description, date, startTime, address } = body;
   if (!PACKAGES.includes(service)) return 'Servicio inválido';
   if (!EVENT_TYPES.includes(eventType)) return 'Tipo de evento inválido';
   if (eventType === 'Otro' && !customEventType?.trim()) return 'Especifica el tipo de evento';
   if (!description?.trim()) return 'La descripción es obligatoria';
   if (!date) return 'La fecha es obligatoria';
   if (!startTime) return 'La hora de inicio es obligatoria';
-  if (!duration || duration < 0.5) return 'La duración es obligatoria';
+  if (!address?.trim()) return 'La dirección es obligatoria';
   return null;
 }
 
@@ -37,12 +37,14 @@ router.post('/', authRequired, async (req, res) => {
     const error = validateReservationBody(req.body);
     if (error) return res.status(400).json({ message: error });
 
-    const { service, eventType, customEventType, description, date, startTime, duration } = req.body;
+    const { service, eventType, customEventType, description, date, startTime, address } = req.body;
 
-    const conflict = await hasReservationConflict({ date, startTime, duration });
+    const DURATION_HOURS = 2;
+
+    const conflict = await hasReservationConflict({ date, startTime, duration: DURATION_HOURS });
     if (conflict) {
       return res.status(409).json({
-        message: 'Ese día y horario ya están ocupados. Elige otra fecha u hora.',
+        message: 'Ese día y horario ya están ocupados. Elige otra fecha u hora disponible o contáctanos para asistencia.',
       });
     }
 
@@ -54,7 +56,8 @@ router.post('/', authRequired, async (req, res) => {
       description: description.trim(),
       date: new Date(date),
       startTime,
-      duration: Number(duration),
+      duration: DURATION_HOURS,
+      address: address.trim(),
     });
 
     res.status(201).json(reservation);
@@ -78,17 +81,18 @@ router.put('/:id', authRequired, async (req, res) => {
     const error = validateReservationBody(req.body);
     if (error) return res.status(400).json({ message: error });
 
-    const { service, eventType, customEventType, description, date, startTime, duration } = req.body;
+    const { service, eventType, customEventType, description, date, startTime, address } = req.body;
+    const DURATION_HOURS = 2;
 
     const conflict = await hasReservationConflict({
       date,
       startTime,
-      duration: Number(duration),
+      duration: DURATION_HOURS,
       excludeId: reservation._id,
     });
     if (conflict) {
       return res.status(409).json({
-        message: 'Ese día y horario ya están ocupados. Elige otra fecha u hora.',
+        message: 'Ese día y horario ya están ocupados. Elige otra fecha u hora disponible o contáctanos para asistencia.',
       });
     }
 
@@ -98,7 +102,8 @@ router.put('/:id', authRequired, async (req, res) => {
     reservation.description = description.trim();
     reservation.date = new Date(date);
     reservation.startTime = startTime;
-    reservation.duration = Number(duration);
+    reservation.duration = DURATION_HOURS;
+    reservation.address = address.trim();
 
     await reservation.save();
     res.json(reservation);
@@ -159,14 +164,16 @@ router.post('/admin', authRequired, adminRequired, async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
+    const DURATION_HOURS = 2;
+
     const conflict = await hasReservationConflict({
       date: rest.date,
       startTime: rest.startTime,
-      duration: Number(rest.duration),
+      duration: DURATION_HOURS,
     });
     if (conflict) {
       return res.status(409).json({
-        message: 'Ese día y horario ya están ocupados. Elige otra fecha u hora.',
+        message: 'Ese día y horario ya están ocupados. Elige otra fecha u hora disponible o contáctanos para asistencia.',
       });
     }
 
@@ -178,7 +185,8 @@ router.post('/admin', authRequired, adminRequired, async (req, res) => {
       description: rest.description.trim(),
       date: new Date(rest.date),
       startTime: rest.startTime,
-      duration: Number(rest.duration),
+      duration: DURATION_HOURS,
+      address: rest.address?.trim(),
     });
 
     res.status(201).json(reservation);
@@ -202,10 +210,12 @@ router.put('/admin/:id', authRequired, adminRequired, async (req, res) => {
     const error = validateReservationBody({ ...reservation.toObject(), ...rest });
     if (error) return res.status(400).json({ message: error });
 
+    const DURATION_HOURS = 2;
+
     const conflict = await hasReservationConflict({
       date: rest.date,
       startTime: rest.startTime,
-      duration: Number(rest.duration),
+      duration: DURATION_HOURS,
       excludeId: reservation._id,
     });
     if (conflict) {
@@ -221,7 +231,8 @@ router.put('/admin/:id', authRequired, adminRequired, async (req, res) => {
     reservation.description = rest.description.trim();
     reservation.date = new Date(rest.date);
     reservation.startTime = rest.startTime;
-    reservation.duration = Number(rest.duration);
+    reservation.duration = DURATION_HOURS;
+    reservation.address = rest.address?.trim();
     if (status && STATUSES.includes(status)) reservation.status = status;
 
     await reservation.save();

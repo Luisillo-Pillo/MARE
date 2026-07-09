@@ -46,11 +46,39 @@
 	padding-right: 58px;
 }
 
-.subject-block .subject { display: block; font-size: 1.1rem; color: #2a1f15; }
-.meta { font-size: 0.9rem; color: #73625c; margin-top: 0.35rem; line-height: 1.4; }
-.meta-name { color: #332417; font-weight: 700; }
+.asunto{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
 
-.message-date { font-size: 0.85rem; color: #9c8b80; }
+.subject-block{
+    text-align: left;
+}
+
+.subject-block .subject {
+    display: block;
+    font-size: 1.1rem;
+    color: #2a1f15;
+}
+
+.meta {
+    font-size: 0.9rem;
+    color: black;
+    margin-top: 0.35rem;
+    line-height: 1.4;
+    font-weight: bold;
+}
+
+.meta-name {
+    color: #332417;
+    font-weight: 500;
+}
+
+.message-date {
+    font-size: 0.85rem;
+    color: #9c8b80;
+}
 
 .contact-row { margin-top: 0.8rem; color: #3a2c23; display: flex; flex-wrap: wrap; gap: 1rem; }
 .contact-row div { display: flex; align-items: center; gap: 0.35rem; }
@@ -59,7 +87,7 @@
 .message-body {
 	margin: 1rem 0 0;
 	padding: 1rem;
-	background: rgba(248, 241, 232, 0.9);
+	background: rgba(240, 218, 189, 0.9);
 	border-radius: 12px;
 	white-space: pre-wrap;
 	overflow-wrap: anywhere;

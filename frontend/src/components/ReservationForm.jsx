@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { EVENT_TYPES, PACKAGES, DURATION_OPTIONS, TIME_OPTIONS } from '../constants/packages';
+import { EVENT_TYPES, PACKAGES, TIME_OPTIONS } from '../constants/packages';
 import './ReservationForm.css';
 
 function toFormState(initial = {}, defaultService = '') {
@@ -11,6 +11,7 @@ function toFormState(initial = {}, defaultService = '') {
     eventType: init.eventType || '',
     customEventType: init.customEventType || '',
     description: init.description || '',
+    address: init.address || '',
     date,
     startTime: init.startTime || '',
     duration: String(init.duration || '2'),
@@ -39,7 +40,8 @@ export default function ReservationForm({
       await onSubmit({
         ...form,
         service: form.service === 'Otro' ? form.customService : form.service,
-        duration: Number(form.duration),
+        duration: 2,
+        address: form.address?.trim(),
         customEventType: form.eventType === 'Otro' ? form.customEventType : '',
       });
     } catch (err) {
@@ -126,12 +128,8 @@ export default function ReservationForm({
           </select>
         </div>
         <div className="form-group">
-          <label htmlFor="duration">Duración</label>
-          <select id="duration" name="duration" value={form.duration} onChange={handleChange} required>
-            {DURATION_OPTIONS.map((d) => (
-              <option key={d.value} value={d.value}>{d.label}</option>
-            ))}
-          </select>
+          <label htmlFor="address">Dirección</label>
+          <input id="address" name="address" value={form.address} onChange={handleChange} required placeholder="Calle, número, colonia, ciudad" />
         </div>
       </div>
 
