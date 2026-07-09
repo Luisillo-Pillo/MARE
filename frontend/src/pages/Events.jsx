@@ -107,7 +107,7 @@ export default function Events() {
                 <div className="event-body">
                   <p><strong>Tipo:</strong> {r.eventType}{r.customEventType ? ` - ${r.customEventType}` : ''}</p>
                   <p><strong>Servicio:</strong> {r.service}</p>
-                  <p><strong>Hora:</strong> {r.startTime} ({r.duration} hrs)</p>
+                  <p><strong>Hora:</strong> {r.startTime} - {r.endTime}</p>
                   <p><strong>Descripción:</strong> {r.description}</p>
                 </div>
                 {r.status !== 'Cancelado' && r.status !== 'Completado' && (

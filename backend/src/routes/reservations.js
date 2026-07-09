@@ -7,6 +7,22 @@ import { hasReservationConflict } from '../utils/reservationConflict.js';
 const router = Router();
 const STATUS_ORDER = ['Pendiente', 'Confirmado', 'En proceso', 'Completado', 'Cancelado'];
 
+function computeEndTime(startTime, durationHours) {
+  // startTime expected as 'HH:MM'
+  if (!startTime) return '';
+  const [hh, mm] = startTime.split(':').map((v) => parseInt(v, 10));
+  if (isNaN(hh) || isNaN(mm)) return '';
+  const date = new Date();
+  date.setHours(hh);
+  date.setMinutes(mm);
+  date.setSeconds(0);
+  date.setMilliseconds(0);
+  date.setHours(date.getHours() + Number(durationHours || 0));
+  const endH = String(date.getHours()).padStart(2, '0');
+  const endM = String(date.getMinutes()).padStart(2, '0');
+  return `${endH}:${endM}`;
+}
+
 function validateReservationBody(body) {
   const { service, eventType, customEventType, description, date, startTime, address } = body;
   if (!PACKAGES.includes(service)) return 'Servicio inválido';
@@ -57,6 +73,7 @@ router.post('/', authRequired, async (req, res) => {
       date: new Date(date),
       startTime,
       duration: DURATION_HOURS,
+      endTime: computeEndTime(startTime, DURATION_HOURS),
       address: address.trim(),
     });
 
@@ -102,6 +119,7 @@ router.put('/:id', authRequired, async (req, res) => {
     reservation.description = description.trim();
     reservation.date = new Date(date);
     reservation.startTime = startTime;
+    reservation.endTime = computeEndTime(startTime, DURATION_HOURS);
     reservation.duration = DURATION_HOURS;
     reservation.address = address.trim();
 
@@ -186,6 +204,7 @@ router.post('/admin', authRequired, adminRequired, async (req, res) => {
       date: new Date(rest.date),
       startTime: rest.startTime,
       duration: DURATION_HOURS,
+      endTime: computeEndTime(rest.startTime, DURATION_HOURS),
       address: rest.address?.trim(),
     });
 
@@ -231,6 +250,7 @@ router.put('/admin/:id', authRequired, adminRequired, async (req, res) => {
     reservation.description = rest.description.trim();
     reservation.date = new Date(rest.date);
     reservation.startTime = rest.startTime;
+    reservation.endTime = computeEndTime(rest.startTime, DURATION_HOURS);
     reservation.duration = DURATION_HOURS;
     reservation.address = rest.address?.trim();
     if (status && STATUSES.includes(status)) reservation.status = status;

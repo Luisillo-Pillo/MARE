@@ -14,6 +14,7 @@ function toFormState(initial = {}, defaultService = '') {
     address: init.address || '',
     date,
     startTime: init.startTime || '',
+    endTime: init.endTime || '',
     duration: String(init.duration || '2'),
   };
 }
