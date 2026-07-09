@@ -250,15 +250,16 @@ router.patch('/admin/:id/status', authRequired, adminRequired, async (req, res) 
       return res.status(400).json({ message: 'Estatus inválido' });
     }
 
-    const reservation = await Reservation.findById(req.params.id);
+    const reservation = await Reservation.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true, runValidators: true }
+    );
+
     if (!reservation) return res.status(404).json({ message: 'Reservación no encontrada' });
-
-    const oldStatus = reservation.status;
-    reservation.status = status;
-    await reservation.save();
-
     res.json(reservation);
-  } catch {
+  } catch (err) {
+    console.error('Error updating reservation status:', err);
     res.status(500).json({ message: 'Error al actualizar estatus' });
   }
 });
