@@ -223,7 +223,8 @@ export default function AdminReservations() {
                           </select>
                         </div>
                         <p><strong>Cliente:</strong> {r.user?.name} ({r.user?.email})</p>
-                        <p><strong>Fecha:</strong> {formatDate(r.date)} — {r.startTime}</p>
+                        <p><strong>Fecha:</strong> {formatDate(r.date)}</p>
+                        <p><strong>Horario:</strong> {r.startTime} - {r.endTime}</p>
                         <p><strong>Tipo:</strong> {r.eventType}{r.customEventType ? ` - ${r.customEventType}` : ''}</p>
                         <p><strong>Servicio:</strong> {r.service}</p>
                         <p><strong>Ubicación:</strong> {r.address}</p>
