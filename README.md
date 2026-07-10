@@ -15,7 +15,6 @@ MARE/
 
 - Node.js 18+
 - MongoDB Atlas (cuenta gratuita)
-- Cuenta Gmail con contraseña de aplicación (para envío de correos)
 
 ## Configuración local
 
@@ -52,7 +51,6 @@ El **primer usuario registrado** se convierte automáticamente en administrador.
 
 - [ ] Repositorio en GitHub (sin archivos `.env` — ya están en `.gitignore`)
 - [ ] MongoDB Atlas configurado (la URI local `127.0.0.1` **no funciona** en producción)
-- [ ] Contraseña de aplicación de Gmail para `SMTP_PASS`
 - [ ] `JWT_SECRET` seguro (el mismo en local y producción, o uno nuevo solo para prod)
 
 ### Paso 1 — Backend en Render (hazlo primero)
@@ -71,11 +69,6 @@ El **primer usuario registrado** se convierte automáticamente en administrador.
 | `JWT_SECRET` | Tu clave secreta larga |
 | `NODE_ENV` | `production` |
 | `FRONTEND_URL` | URL de Vercel (la agregas después del paso 2) |
-| `SMTP_USER` | `mare.eventos.pro@gmail.com` |
-| `SMTP_PASS` | Contraseña de aplicación Gmail |
-| `SMTP_HOST` | `smtp.gmail.com` |
-| `SMTP_PORT` | `587` |
-| `CONTACT_EMAIL` | `mare.eventos.pro@gmail.com` |
 
 5. Despliega y copia la URL del servicio (ej. `https://mare-api.onrender.com`)
 6. Verifica: abre `https://tu-api.onrender.com/api/health` — debe responder `{"status":"ok"}`
@@ -117,14 +110,14 @@ El **primer usuario registrado** se convierte automáticamente en administrador.
 
 - [ ] Home carga con carrusel e imágenes
 - [ ] Registro e inicio de sesión funcionan
-- [ ] Formulario de contacto envía (revisa correo y panel Mensajes del admin)
+- [ ] Formulario de contacto envía (revisa panel Mensajes del admin)
 - [ ] Crear reservación funciona
 - [ ] Panel admin visible para el primer usuario registrado
 
 ## Funcionalidades
 
 - Página de inicio con carrusel, información del negocio y paquetes
-- Formulario de contacto (guarda en BD y envía correo)
+- Formulario de contacto (guarda en BD, visible en panel admin)
 - Sistema de reservaciones con detección de conflictos de horario
 - Autenticación JWT (sesión de 48 horas)
 - Panel de administración: clientes, reservaciones y mensajes

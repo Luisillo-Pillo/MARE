@@ -14,9 +14,3 @@ services:
         sync: false
       - key: FRONTEND_URL
         value: https://mare-omega.vercel.app
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASS
-        sync: false
-      - key: CONTACT_EMAIL
-        value: mare.eventos.pro@gmail.com

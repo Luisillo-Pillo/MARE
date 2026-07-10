@@ -31,7 +31,7 @@ export default function Contact() {
     setLoading(true);
     try {
       const payload = user
-        ? { name: user.name, email: user.email, phone: user.phone || '', subject: form.subject, message: form.message, userId: user._id }
+        ? { name: user.name, email: user.email, phone: user.phone || '', subject: form.subject, message: form.message }
         : { ...form };
       await api.sendContact(payload);
       showToast('Mensaje enviado correctamente', 'success');

@@ -5,7 +5,7 @@ import { authRequired, adminRequired } from '../middleware/auth.js';
 import { hasReservationConflict } from '../utils/reservationConflict.js';
 
 const router = Router();
-const STATUS_ORDER = ['Pendiente', 'Confirmado', 'En proceso', 'Completado', 'Cancelado'];
+const DURATION_HOURS = 2;
 
 function computeEndTime(startTime, durationHours) {
   // startTime expected as 'HH:MM'
@@ -43,7 +43,8 @@ router.get('/mine', authRequired, async (req, res) => {
   try {
     const reservations = await Reservation.find({ user: req.userId }).sort({ date: -1 });
     res.json(reservations);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al obtener eventos' });
   }
 });
@@ -54,8 +55,6 @@ router.post('/', authRequired, async (req, res) => {
     if (error) return res.status(400).json({ message: error });
 
     const { service, eventType, customEventType, description, date, startTime, address } = req.body;
-
-    const DURATION_HOURS = 2;
 
     const conflict = await hasReservationConflict({ date, startTime, duration: DURATION_HOURS });
     if (conflict) {
@@ -99,7 +98,6 @@ router.put('/:id', authRequired, async (req, res) => {
     if (error) return res.status(400).json({ message: error });
 
     const { service, eventType, customEventType, description, date, startTime, address } = req.body;
-    const DURATION_HOURS = 2;
 
     const conflict = await hasReservationConflict({
       date,
@@ -125,7 +123,8 @@ router.put('/:id', authRequired, async (req, res) => {
 
     await reservation.save();
     res.json(reservation);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al actualizar reservación' });
   }
 });
@@ -145,7 +144,8 @@ router.patch('/:id/cancel', authRequired, async (req, res) => {
     await reservation.save();
 
     res.json(reservation);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al cancelar reservación' });
   }
 });
@@ -153,20 +153,21 @@ router.patch('/:id/cancel', authRequired, async (req, res) => {
 router.get('/admin/all', authRequired, adminRequired, async (req, res) => {
   try {
     const { status } = req.query;
-    const query = status && status !== 'todas' ? { status } : {};
+    const query = typeof status === 'string' && STATUSES.includes(status) ? { status } : {};
     const reservations = await Reservation.find(query)
       .populate('user', 'name email phone')
       .sort({ date: -1 });
 
     reservations.sort((a, b) => {
-      const orderA = STATUS_ORDER.indexOf(a.status);
-      const orderB = STATUS_ORDER.indexOf(b.status);
+      const orderA = STATUSES.indexOf(a.status);
+      const orderB = STATUSES.indexOf(b.status);
       if (orderA !== orderB) return orderA - orderB;
       return new Date(b.date) - new Date(a.date);
     });
 
     res.json(reservations);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al obtener reservaciones' });
   }
 });
@@ -181,8 +182,6 @@ router.post('/admin', authRequired, adminRequired, async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
-
-    const DURATION_HOURS = 2;
 
     const conflict = await hasReservationConflict({
       date: rest.date,
@@ -209,7 +208,8 @@ router.post('/admin', authRequired, adminRequired, async (req, res) => {
     });
 
     res.status(201).json(reservation);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al crear reservación' });
   }
 });
@@ -226,14 +226,13 @@ router.put('/admin/:id', authRequired, adminRequired, async (req, res) => {
       reservation.user = userId;
     }
 
-    const error = validateReservationBody({ ...reservation.toObject(), ...rest });
+    const merged = { ...reservation.toObject(), ...rest };
+    const error = validateReservationBody(merged);
     if (error) return res.status(400).json({ message: error });
 
-    const DURATION_HOURS = 2;
-
     const conflict = await hasReservationConflict({
-      date: rest.date,
-      startTime: rest.startTime,
+      date: merged.date,
+      startTime: merged.startTime,
       duration: DURATION_HOURS,
       excludeId: reservation._id,
     });
@@ -243,22 +242,22 @@ router.put('/admin/:id', authRequired, adminRequired, async (req, res) => {
       });
     }
 
-    const oldStatus = reservation.status;
-    reservation.service = rest.service;
-    reservation.eventType = rest.eventType;
-    reservation.customEventType = rest.eventType === 'Otro' ? rest.customEventType?.trim() : '';
-    reservation.description = rest.description.trim();
-    reservation.date = new Date(rest.date);
-    reservation.startTime = rest.startTime;
-    reservation.endTime = computeEndTime(rest.startTime, DURATION_HOURS);
+    reservation.service = merged.service;
+    reservation.eventType = merged.eventType;
+    reservation.customEventType = merged.eventType === 'Otro' ? merged.customEventType?.trim() : '';
+    reservation.description = merged.description.trim();
+    reservation.date = new Date(merged.date);
+    reservation.startTime = merged.startTime;
+    reservation.endTime = computeEndTime(merged.startTime, DURATION_HOURS);
     reservation.duration = DURATION_HOURS;
-    reservation.address = rest.address?.trim();
+    reservation.address = merged.address?.trim();
     if (status && STATUSES.includes(status)) reservation.status = status;
 
     await reservation.save();
 
     res.json(reservation);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al actualizar reservación' });
   }
 });
@@ -290,7 +289,8 @@ router.delete('/admin/:id', authRequired, adminRequired, async (req, res) => {
     if (!reservation) return res.status(404).json({ message: 'Reservación no encontrada' });
     await reservation.deleteOne();
     res.json({ message: 'Reservación eliminada' });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al eliminar reservación' });
   }
 });

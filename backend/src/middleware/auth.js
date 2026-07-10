@@ -17,6 +17,19 @@ export function authRequired(req, res, next) {
   }
 }
 
+export function optionalAuth(req, _res, next) {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) return next();
+  try {
+    const decoded = jwt.verify(header.split(' ')[1], process.env.JWT_SECRET);
+    req.userId = decoded.userId;
+    req.userRole = decoded.role;
+  } catch {
+    // token inválido o expirado: se continúa como invitado
+  }
+  next();
+}
+
 export async function adminRequired(req, res, next) {
   try {
     const user = await User.findById(req.userId);

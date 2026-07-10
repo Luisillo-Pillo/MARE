@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import ContactMessage from '../models/ContactMessage.js';
-import { authRequired, adminRequired } from '../middleware/auth.js';
+import { authRequired, adminRequired, optionalAuth } from '../middleware/auth.js';
 import { isValidEmail, isValidMexicanPhone, normalizePhone } from '../utils/validators.js';
 
 const router = Router();
 
-router.post('/', async (req, res) => {
+router.post('/', optionalAuth, async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
 
@@ -25,7 +25,7 @@ router.post('/', async (req, res) => {
       phone: normalizePhone(phone),
       subject: subject.trim(),
       message: message.trim(),
-      user: req.body.userId || null,
+      user: req.userId || null,
     });
 
     res.status(201).json({ message: 'Mensaje enviado correctamente' });
@@ -39,7 +39,8 @@ router.get('/admin', authRequired, adminRequired, async (_req, res) => {
   try {
     const messages = await ContactMessage.find().sort({ createdAt: -1 });
     res.json(messages);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al obtener mensajes' });
   }
 });
@@ -50,7 +51,8 @@ router.delete('/admin/:id', authRequired, adminRequired, async (req, res) => {
     if (!message) return res.status(404).json({ message: 'Mensaje no encontrado' });
     await message.deleteOne();
     res.json({ message: 'Mensaje eliminado' });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al eliminar mensaje' });
   }
 });

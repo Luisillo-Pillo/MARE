@@ -33,7 +33,8 @@ router.put('/profile', authRequired, async (req, res) => {
 
     await user.save();
     res.json(user);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al actualizar perfil' });
   }
 });
@@ -54,7 +55,8 @@ router.get('/admin/clients', authRequired, adminRequired, async (req, res) => {
     if (filter === 'without') result = result.filter((u) => !u.hasReservations);
 
     res.json(result);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al obtener clientes' });
   }
 });
@@ -66,7 +68,8 @@ router.get('/admin/clients/:id', authRequired, adminRequired, async (req, res) =
 
     const reservations = await Reservation.find({ user: user._id }).sort({ date: -1 });
     res.json({ user, reservations });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al obtener perfil' });
   }
 });
@@ -84,7 +87,8 @@ router.put('/admin/clients/:id/role', authRequired, adminRequired, async (req, r
     user.role = role;
     await user.save();
     res.json(user);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al actualizar rol' });
   }
 });
@@ -98,7 +102,8 @@ router.delete('/admin/clients/:id', authRequired, adminRequired, async (req, res
     await ContactMessage.updateMany({ user: user._id }, { user: null });
     await user.deleteOne();
     res.json({ message: 'Cliente eliminado' });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error al eliminar cliente' });
   }
 });

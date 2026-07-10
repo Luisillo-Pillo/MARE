@@ -8,24 +8,17 @@ export default function Login() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
-  const [notRegistered, setNotRegistered] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setNotRegistered(false);
     setLoading(true);
     try {
       await login(form.email, form.password);
       navigate('/');
     } catch (err) {
-      if (err.data?.notRegistered) {
-        setNotRegistered(true);
-        setError('Este correo no está registrado.');
-      } else {
-        setError(err.message);
-      }
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -37,11 +30,6 @@ export default function Login() {
         <div className="card auth-card">
           <h1>Iniciar sesión</h1>
           {error && <div className="alert alert-error">{error}</div>}
-          {notRegistered && (
-            <p className="auth-link">
-              ¿No tienes cuenta? <Link to="/registro">Regístrate aquí</Link>
-            </p>
-          )}
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="email">Correo</label>

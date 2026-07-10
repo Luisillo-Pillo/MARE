@@ -59,13 +59,9 @@ router.post('/login', async (req, res) => {
     }
 
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) {
-      return res.status(404).json({ message: 'Correo no registrado', notRegistered: true });
-    }
-
-    const valid = await user.comparePassword(password);
-    if (!valid) {
-      return res.status(401).json({ message: 'Contraseña incorrecta' });
+    const valid = user ? await user.comparePassword(password) : false;
+    if (!user || !valid) {
+      return res.status(401).json({ message: 'Correo o contraseña incorrectos' });
     }
 
     const token = signToken(user);

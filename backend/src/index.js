@@ -14,10 +14,6 @@ const PORT = Number(process.env.PORT) || 5000;
 
 validateEnv();
 
-if (process.env.SMTP_PASS?.includes('contraseña_de_aplicacion')) {
-  console.warn('⚠️  SMTP_PASS sigue con el valor de ejemplo. Los correos no se enviarán hasta configurarlo.');
-}
-
 app.use(cors(corsOptions()));
 app.use(express.json());
 
