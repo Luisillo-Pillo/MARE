@@ -7,7 +7,7 @@ import { authLimiter } from '../middleware/rateLimit.js';
 import { isValidEmail, isValidMexicanPhone, normalizePhone, isValidPassword } from '../utils/validators.js';
 
 const router = Router();
-const JWT_EXPIRES = '48h';
+const JWT_EXPIRES = '365d';
 
 function signToken(user) {
   return jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {

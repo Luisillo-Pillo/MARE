@@ -16,9 +16,13 @@ export function AuthProvider({ children }) {
     try {
       const data = await api.me();
       setUser(data);
-    } catch {
-      localStorage.removeItem('mare_token');
-      setUser(null);
+    } catch (err) {
+      // Solo cerramos la sesión si el servidor confirma que el token ya no es válido (401).
+      // Cualquier otro error (red caída, backend despertando, 500, etc.) no debe desloguear al usuario.
+      if (err?.status === 401) {
+        localStorage.removeItem('mare_token');
+        setUser(null);
+      }
     } finally {
       setLoading(false);
     }
