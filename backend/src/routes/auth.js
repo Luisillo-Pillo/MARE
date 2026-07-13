@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Reservation from '../models/Reservation.js';
 import { authRequired } from '../middleware/auth.js';
 import { authLimiter } from '../middleware/rateLimit.js';
 import { isValidEmail, isValidMexicanPhone, normalizePhone, isValidPassword } from '../utils/validators.js';
@@ -12,6 +13,11 @@ function signToken(user) {
   return jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
     expiresIn: JWT_EXPIRES,
   });
+}
+
+async function withReservationCount(user) {
+  const reservationCount = await Reservation.countDocuments({ user: user._id });
+  return { ...user.toJSON(), reservationCount };
 }
 
 router.post('/register', authLimiter, async (req, res) => {
@@ -48,7 +54,7 @@ router.post('/register', authLimiter, async (req, res) => {
     });
 
     const token = signToken(user);
-    res.status(201).json({ token, user: user.toJSON() });
+    res.status(201).json({ token, user: await withReservationCount(user) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error al registrar usuario' });
@@ -69,7 +75,7 @@ router.post('/login', authLimiter, async (req, res) => {
     }
 
     const token = signToken(user);
-    res.json({ token, user: user.toJSON() });
+    res.json({ token, user: await withReservationCount(user) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error al iniciar sesión' });
@@ -80,7 +86,7 @@ router.get('/me', authRequired, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
-    res.json(user);
+    res.json(await withReservationCount(user));
   } catch {
     res.status(500).json({ message: 'Error del servidor' });
   }
