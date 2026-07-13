@@ -1,12 +1,9 @@
-import { useAuth } from '../context/AuthContext';
 import Carousel from '../components/Carousel';
 import PackageCard from '../components/PackageCard';
 import { PACKAGES } from '../constants/packages';
 import './Home.css';
 
 export default function Home() {
-  const { user } = useAuth();
-
   return (
     <div className="home">
       <Carousel />

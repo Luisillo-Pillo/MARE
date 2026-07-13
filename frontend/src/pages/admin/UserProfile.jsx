@@ -100,7 +100,7 @@ export default function UserProfile() {
                 <span className={`status-badge ${statusClass(r.status)}`}>{r.status}</span>
                 <p><strong>Fecha:</strong> {formatDate(r.date)} — {r.startTime} - {r.endTime}</p>
                 <p><strong>Tipo:</strong> {r.eventType}{r.customEventType ? ` - ${r.customEventType}` : ''}</p>
-                <p><strong>Servicio:</strong> {r.service}</p>
+                <p><strong>Servicio:</strong> {r.service === 'Otro' ? r.customService : r.service}</p>
                 <p><strong>Descripción:</strong> {r.description}</p>
               </div>
             ))}
