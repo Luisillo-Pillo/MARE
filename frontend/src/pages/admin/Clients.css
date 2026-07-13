@@ -1,8 +1,4 @@
 /* Styles for Clients.jsx */
-.clients-list {}
-
-.admin-clients {}
-
 /* Table and admin utilities */
 .admin-table-wrap {
     overflow-x: auto;

@@ -1,6 +1,4 @@
 /* Styles for UserProfile.jsx */
-.user-profile { }
-
 .admin-list {
 	display: flex;
 	flex-direction: column;

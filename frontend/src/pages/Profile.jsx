@@ -89,10 +89,14 @@ export default function Profile() {
 
 				<div className="card profile-card">
 					<div className="profile-header">
-						<div>
-							<h3 className="profile-name">{user?.name}
+						<div className="profile-identity">
+							<div className="profile-avatar" aria-hidden="true">
+								{(user?.name || '?').trim().charAt(0).toUpperCase()}
+							</div>
+							<div>
+								<h3 className="profile-name">{user?.name}</h3>
 								<span className={`profile-role-badge ${isAdmin ? 'admin' : 'user'}`}>{isAdmin ? 'Administrador' : 'Usuario'}</span>
-							</h3>
+							</div>
 						</div>
 						{!editMode ? (
 							<button className="icon-btn edit-toggle" title="Editar perfil" onClick={() => setEditMode(true)} aria-label="Editar perfil">
@@ -106,14 +110,10 @@ export default function Profile() {
 
 					{!editMode ? (
 						<div className="profile-view">
-							{/* <div className="profile-row"><strong>Nombre:</strong> <span>{user?.name}</span></div> */}
 							<div className="profile-row"><strong>Correo:</strong> <span>{user?.email}</span></div>
 							<div className="profile-row"><strong>Teléfono:</strong> <span>{user?.phone || '-'}</span></div>
 							{showUserProfileStats && (
-								<>
-									<div className="profile-row"><strong>Eventos:</strong> <span>{totalEvents}</span></div>
-									<div className="profile-row"><strong>Miembro desde:</strong> <span>{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}</span></div>
-								</>
+								<div className="profile-row"><strong>Miembro desde:</strong> <span>{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}</span></div>
 							)}
 						</div>
 					) : (
@@ -137,6 +137,40 @@ export default function Profile() {
 						</form>
 					)}
 				</div>
+
+				{showUserProfileStats && !editMode && (
+					<div className="profile-stats">
+						<div className="stat-tile">
+							<svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+								<rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" strokeWidth="2" />
+								<path d="M3 9h18" stroke="currentColor" strokeWidth="2" />
+								<path d="M8 2v4M16 2v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+								<path d="M8.5 13.5l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+							</svg>
+							<div>
+								<span className="stat-value">{totalEvents}</span>
+								<span className="stat-label">{totalEvents === 1 ? 'Evento reservado' : 'Eventos reservados'}</span>
+							</div>
+						</div>
+					</div>
+				)}
+
+				{showUserProfileStats && !editMode && (
+					<div className="card profile-cta">
+						<div className="profile-cta-icon" aria-hidden="true">
+							<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M7 3v7a2 2 0 0 0 2 2v9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+								<path d="M7 3v7M11 3v7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+								<path d="M17 3c-1.5 2-2 4-2 6s.7 3 2 3v9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+							</svg>
+						</div>
+						<div className="profile-cta-text">
+							<h3>¿Ya tienes tu próximo evento en mente?</h3>
+							<p>Nosotros nos encargamos de la comida: desde taquizas hasta banquetes completos.</p>
+						</div>
+						<button className="btn btn-primary" onClick={() => navigate('/reservar')}>Reservar ahora</button>
+					</div>
+				)}
 
 				{editMode && (
 					<div className="card" style={{ marginTop: '1.5rem' }}>

@@ -16,6 +16,7 @@ import Clients from './pages/admin/Clients';
 import UserProfile from './pages/admin/UserProfile';
 import AdminReservations from './pages/admin/AdminReservations';
 import Messages from './pages/admin/Messages';
+import NotFound from './pages/NotFound';
 
 function AppRoutes() {
   const location = useLocation();
@@ -85,6 +86,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>
   );

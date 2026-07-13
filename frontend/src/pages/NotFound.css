@@ -1,0 +1,17 @@
+/* Styles for NotFound.jsx */
+.not-found-page {
+  min-height: calc(100vh - var(--nav-height));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.not-found-card {
+  max-width: 480px;
+}
+
+.not-found-card p {
+  margin: 1rem 0 1.5rem;
+  color: #666;
+}

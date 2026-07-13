@@ -83,12 +83,8 @@ export default function Messages() {
 											<div>Correo: <span className="meta-name">{m.email}</span></div>
 											<div>Teléfono: <span className="meta-name">{m.phone}</span></div>
 										</div>
-										{/* <div className="meta">De: <span className="meta-name">{m.name}</span> — <a href={`mailto:${m.email}`}>{m.email}</a></div> */}
 									</div>
 									<span className="message-date">{formatDate(m.createdAt)}</span>
-								</div>
-								<div className="contact-row">
-									{/* <div><strong>Teléfono:</strong> <a href={`tel:+52${m.phone}`}>{m.phone}</a></div> */}
 								</div>
 								<p className="message-body">{m.message}</p>
 							</div>

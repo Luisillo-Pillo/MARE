@@ -32,7 +32,7 @@ export default function AdminReservations() {
 		setError(''); // Limpiar error anterior
 		try {
 			const [resData, clientsData] = await Promise.all([
-				api.getAdminReservations(statusFilter === 'todas' ? '' : statusFilter),
+				api.getAdminReservations(),
 				api.getClients(),
 			]);
 			setReservations(resData);
@@ -46,9 +46,9 @@ export default function AdminReservations() {
 
 	useEffect(() => {
 		load();
-	}, [statusFilter]);
+	}, []);
 
-	const filteredReservations = useMemo(() => {
+	const searchedReservations = useMemo(() => {
 		const term = searchTerm.trim().toLowerCase();
 		if (!term) return reservations;
 
@@ -69,6 +69,19 @@ export default function AdminReservations() {
 			return values.includes(term);
 		});
 	}, [reservations, searchTerm]);
+
+	const statusCounts = useMemo(() => {
+		return searchedReservations.reduce((counts, r) => {
+			const key = r.status || 'Sin estado';
+			counts[key] = (counts[key] || 0) + 1;
+			return counts;
+		}, {});
+	}, [searchedReservations]);
+
+	const filteredReservations = useMemo(() => {
+		if (statusFilter === 'todas') return searchedReservations;
+		return searchedReservations.filter((r) => r.status === statusFilter);
+	}, [searchedReservations, statusFilter]);
 
 	const groupedReservations = useMemo(() => {
 		const groups = filteredReservations.reduce((groups, reservation) => {
@@ -168,6 +181,9 @@ export default function AdminReservations() {
 								onClick={() => setStatusFilter(s)}
 							>
 								{s === 'todas' ? 'Ver todas' : s}
+								<span className="filter-count">
+									{s === 'todas' ? searchedReservations.length : statusCounts[s] || 0}
+								</span>
 							</button>
 						))}
 					</div>

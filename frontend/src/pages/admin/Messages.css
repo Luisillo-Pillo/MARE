@@ -1,7 +1,4 @@
 /* Styles for Messages.jsx */
-.page .page-content { }
-.admin-messages { }
-
 /* Aesthetic message cards */
 .admin-list {
 	display: flex;
@@ -79,10 +76,6 @@
     font-size: 0.85rem;
     color: #9c8b80;
 }
-
-.contact-row { margin-top: 0.8rem; color: #3a2c23; display: flex; flex-wrap: wrap; gap: 1rem; }
-.contact-row div { display: flex; align-items: center; gap: 0.35rem; }
-.contact-row a { color: #b45e1b; text-decoration: none; }
 
 .message-body {
 	margin: 1rem 0 0;
