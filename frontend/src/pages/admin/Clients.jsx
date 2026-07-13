@@ -152,12 +152,12 @@ export default function Clients() {
 										<tbody>
 											{adminClients.map((c) => (
 												<tr key={c._id}>
-													<td>{c.name}</td>
-													<td>{c.email}</td>
-													<td>{c.phone}</td>
-													<td>{c.role}</td>
-													<td>{c.reservationCount}</td>
-													<td className="actions-cell">
+													<td data-label="Nombre">{c.name}</td>
+													<td data-label="Correo">{c.email}</td>
+													<td data-label="Teléfono">{c.phone}</td>
+													<td data-label="Rol">{c.role}</td>
+													<td data-label="Reservaciones">{c.reservationCount}</td>
+													<td className="actions-cell" data-label="Acciones">
 														<Link to={`/admin/clientes/${c._id}`} className="btn btn-secondary btn-sm">Ver perfil</Link>
 														{c.role !== 'admin' ? (
 															<button className="btn btn-primary btn-sm" onClick={() => handleRoleChange(c._id, 'admin')}>Hacer admin</button>
@@ -194,12 +194,12 @@ export default function Clients() {
 										<tbody>
 											{normalClients.map((c) => (
 												<tr key={c._id}>
-													<td>{c.name}</td>
-													<td>{c.email}</td>
-													<td>{c.phone}</td>
-													<td>{c.role}</td>
-													<td>{c.reservationCount}</td>
-													<td className="actions-cell">
+													<td data-label="Nombre">{c.name}</td>
+													<td data-label="Correo">{c.email}</td>
+													<td data-label="Teléfono">{c.phone}</td>
+													<td data-label="Rol">{c.role}</td>
+													<td data-label="Reservaciones">{c.reservationCount}</td>
+													<td className="actions-cell" data-label="Acciones">
 														<Link to={`/admin/clientes/${c._id}`} className="btn btn-secondary btn-sm">Ver perfil</Link>
 														{c.role !== 'admin' ? (
 															<button className="btn btn-primary btn-sm" onClick={() => handleRoleChange(c._id, 'admin')}>Hacer admin</button>

@@ -50,17 +50,19 @@
 
 .profile-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
 }
 
 .profile-row strong {
-    width: 120px;
+    min-width: 120px;
     color: #333;
 }
 
 .profile-row span {
     color: #222;
+    overflow-wrap: anywhere;
 }
 
 .icon-btn {

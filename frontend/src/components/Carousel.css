@@ -54,16 +54,29 @@
 }
 
 .carousel-dots button {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-dots button::after {
+  content: '';
   width: 12px;
   height: 12px;
   border-radius: 50%;
   border: 2px solid var(--color-white);
   background: transparent;
-  cursor: pointer;
-  padding: 0;
+  transition: background 0.2s, border-color 0.2s;
 }
 
-.carousel-dots button.active {
+.carousel-dots button.active::after {
   background: var(--color-gold);
   border-color: var(--color-gold);
 }

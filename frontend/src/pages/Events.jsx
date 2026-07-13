@@ -126,7 +126,8 @@ export default function Events() {
             message="¿Deseas cancelar esta reservación?"
             onConfirm={doCancel}
             onCancel={() => setCancelConfirm(null)}
-            confirmLabel="Cancelar"
+            confirmLabel="Sí, cancelar"
+            cancelLabel="Volver"
           />
       </div>
     </div>
