@@ -7,7 +7,8 @@ const PACKAGES = ['Paquete 1', 'Paquete 2', 'Paquete 3', 'Paquete 4'];
 const reservationSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    service: { type: String, enum: PACKAGES, required: true },
+    service: { type: String, enum: [...PACKAGES, 'Otro'], required: true },
+    customService: { type: String, trim: true, default: '' },
     eventType: { type: String, enum: EVENT_TYPES, required: true },
     customEventType: { type: String, trim: true, default: '' },
     description: { type: String, required: true, trim: true },

@@ -24,8 +24,9 @@ function computeEndTime(startTime, durationHours) {
 }
 
 function validateReservationBody(body) {
-  const { service, eventType, customEventType, description, date, startTime, address } = body;
-  if (!PACKAGES.includes(service)) return 'Servicio inválido';
+  const { service, customService, eventType, customEventType, description, date, startTime, address } = body;
+  if (!PACKAGES.includes(service) && service !== 'Otro') return 'Servicio inválido';
+  if (service === 'Otro' && !customService?.trim()) return 'Especifica el servicio';
   if (!EVENT_TYPES.includes(eventType)) return 'Tipo de evento inválido';
   if (eventType === 'Otro' && !customEventType?.trim()) return 'Especifica el tipo de evento';
   if (!description?.trim()) return 'La descripción es obligatoria';
@@ -54,7 +55,7 @@ router.post('/', authRequired, async (req, res) => {
     const error = validateReservationBody(req.body);
     if (error) return res.status(400).json({ message: error });
 
-    const { service, eventType, customEventType, description, date, startTime, address } = req.body;
+    const { service, customService, eventType, customEventType, description, date, startTime, address } = req.body;
 
     const conflict = await hasReservationConflict({ date, startTime, duration: DURATION_HOURS });
     if (conflict) {
@@ -66,6 +67,7 @@ router.post('/', authRequired, async (req, res) => {
     const reservation = await Reservation.create({
       user: req.userId,
       service,
+      customService: service === 'Otro' ? customService.trim() : '',
       eventType,
       customEventType: eventType === 'Otro' ? customEventType.trim() : '',
       description: description.trim(),
@@ -97,7 +99,7 @@ router.put('/:id', authRequired, async (req, res) => {
     const error = validateReservationBody(req.body);
     if (error) return res.status(400).json({ message: error });
 
-    const { service, eventType, customEventType, description, date, startTime, address } = req.body;
+    const { service, customService, eventType, customEventType, description, date, startTime, address } = req.body;
 
     const conflict = await hasReservationConflict({
       date,
@@ -112,6 +114,7 @@ router.put('/:id', authRequired, async (req, res) => {
     }
 
     reservation.service = service;
+    reservation.customService = service === 'Otro' ? customService.trim() : '';
     reservation.eventType = eventType;
     reservation.customEventType = eventType === 'Otro' ? customEventType.trim() : '';
     reservation.description = description.trim();
@@ -197,6 +200,7 @@ router.post('/admin', authRequired, adminRequired, async (req, res) => {
     const reservation = await Reservation.create({
       user: userId,
       service: rest.service,
+      customService: rest.service === 'Otro' ? rest.customService?.trim() : '',
       eventType: rest.eventType,
       customEventType: rest.eventType === 'Otro' ? rest.customEventType?.trim() : '',
       description: rest.description.trim(),
@@ -243,6 +247,7 @@ router.put('/admin/:id', authRequired, adminRequired, async (req, res) => {
     }
 
     reservation.service = merged.service;
+    reservation.customService = merged.service === 'Otro' ? merged.customService?.trim() : '';
     reservation.eventType = merged.eventType;
     reservation.customEventType = merged.eventType === 'Otro' ? merged.customEventType?.trim() : '';
     reservation.description = merged.description.trim();

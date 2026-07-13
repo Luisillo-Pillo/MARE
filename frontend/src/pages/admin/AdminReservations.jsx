@@ -60,6 +60,7 @@ export default function AdminReservations() {
 				r.eventType,
 				r.customEventType,
 				r.service,
+				r.customService,
 				r.description,
 				r.address,
 			]
@@ -298,7 +299,7 @@ export default function AdminReservations() {
 												<p><strong>Fecha:</strong> {formatDate(r.date)}</p>
 												<p><strong>Horario:</strong> {r.startTime} - {r.endTime}</p>
 												<p><strong>Tipo:</strong> {r.eventType}{r.customEventType ? ` - ${r.customEventType}` : ''}</p>
-												<p><strong>Servicio:</strong> {r.service}</p>
+												<p><strong>Servicio:</strong> {r.service === 'Otro' ? r.customService : r.service}</p>
 												<p><strong>Ubicación:</strong> {r.address}</p>
 												<p><strong>Descripción:</strong> {r.description}</p>
 												<div className="actions-cell">

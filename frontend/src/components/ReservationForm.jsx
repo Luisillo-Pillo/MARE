@@ -7,7 +7,7 @@ function toFormState(initial = {}, defaultService = '') {
   const date = init.date ? new Date(init.date).toISOString().split('T')[0] : '';
   return {
     service: init.service || defaultService || '',
-    customService: init.service === 'Otro' ? (init.customService || '') : init.customService || '',
+    customService: init.customService || '',
     eventType: init.eventType || '',
     customEventType: init.customEventType || '',
     description: init.description || '',
@@ -40,7 +40,8 @@ export default function ReservationForm({
     try {
       await onSubmit({
         ...form,
-        service: form.service === 'Otro' ? form.customService : form.service,
+        service: form.service,
+        customService: form.service === 'Otro' ? form.customService?.trim() : '',
         duration: 2,
         address: form.address?.trim(),
         customEventType: form.eventType === 'Otro' ? form.customEventType : '',

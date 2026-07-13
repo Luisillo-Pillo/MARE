@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import { connectDB } from './config/db.js';
 import { corsOptions } from './config/cors.js';
 import { validateEnv } from './config/env.js';
@@ -14,6 +15,7 @@ const PORT = Number(process.env.PORT) || 5000;
 
 validateEnv();
 
+app.use(helmet());
 app.use(cors(corsOptions()));
 app.use(express.json());
 

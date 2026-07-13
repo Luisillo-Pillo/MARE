@@ -9,7 +9,7 @@ const router = Router();
 
 router.put('/profile', authRequired, async (req, res) => {
   try {
-    const { name, email, phone } = req.body;
+    const { name, email, phone, currentPassword } = req.body;
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
@@ -23,6 +23,13 @@ router.put('/profile', authRequired, async (req, res) => {
     if (email && email !== user.email) {
       if (!isValidEmail(email)) {
         return res.status(400).json({ message: 'Correo electrónico inválido' });
+      }
+      if (!currentPassword) {
+        return res.status(400).json({ message: 'Ingresa tu contraseña actual para cambiar el correo' });
+      }
+      const validPassword = await user.comparePassword(currentPassword);
+      if (!validPassword) {
+        return res.status(401).json({ message: 'Contraseña actual incorrecta' });
       }
       const exists = await User.findOne({ email: email.toLowerCase() });
       if (exists) {
@@ -84,6 +91,16 @@ router.put('/admin/clients/:id/role', authRequired, adminRequired, async (req, r
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
+    if (user.role === 'admin' && role !== 'admin') {
+      if (user._id.equals(req.user._id)) {
+        return res.status(400).json({ message: 'No puedes quitarte tu propio rol de administrador' });
+      }
+      const adminCount = await User.countDocuments({ role: 'admin' });
+      if (adminCount <= 1) {
+        return res.status(400).json({ message: 'Debe existir al menos un administrador' });
+      }
+    }
+
     user.role = role;
     await user.save();
     res.json(user);
@@ -97,6 +114,16 @@ router.delete('/admin/clients/:id', authRequired, adminRequired, async (req, res
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+    if (user._id.equals(req.user._id)) {
+      return res.status(400).json({ message: 'No puedes eliminar tu propia cuenta' });
+    }
+    if (user.role === 'admin') {
+      const adminCount = await User.countDocuments({ role: 'admin' });
+      if (adminCount <= 1) {
+        return res.status(400).json({ message: 'Debe existir al menos un administrador' });
+      }
+    }
 
     await Reservation.deleteMany({ user: user._id });
     await ContactMessage.updateMany({ user: user._id }, { user: null });

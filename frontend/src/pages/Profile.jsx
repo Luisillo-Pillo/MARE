@@ -13,6 +13,7 @@ export default function Profile() {
 		phone: user?.phone || '',
 	});
 	const [editMode, setEditMode] = useState(false);
+	const [emailCurrentPassword, setEmailCurrentPassword] = useState('');
 	const originalRef = useRef(form);
 
 	useEffect(() => {
@@ -33,12 +34,21 @@ export default function Profile() {
 		e.preventDefault();
 		setError('');
 		setMessage('');
+		const emailChanged = form.email !== user?.email;
+		if (emailChanged && !emailCurrentPassword) {
+			setError('Ingresa tu contraseña actual para cambiar el correo');
+			return;
+		}
 		setLoading(true);
 		try {
-			await api.updateProfile(form);
+			await api.updateProfile({
+				...form,
+				currentPassword: emailChanged ? emailCurrentPassword : undefined,
+			});
 			await refreshUser();
 			setMessage('Perfil actualizado correctamente');
 			setEditMode(false);
+			setEmailCurrentPassword('');
 			originalRef.current = { ...form };
 		} catch (err) {
 			setError(err.message);
@@ -51,6 +61,10 @@ export default function Profile() {
 		e.preventDefault();
 		setError('');
 		setMessage('');
+		if (passwordForm.newPassword.length < 8) {
+			setError('La nueva contraseña debe tener al menos 8 caracteres');
+			return;
+		}
 		if (passwordForm.newPassword !== passwordForm.confirmPassword) {
 			setError('Las contraseñas no coinciden');
 			return;
@@ -126,13 +140,24 @@ export default function Profile() {
 								<label>Correo</label>
 								<input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
 							</div>
+							{form.email !== user?.email && (
+								<div className="form-group">
+									<label>Contraseña actual (requerida para cambiar el correo)</label>
+									<input
+										type="password"
+										value={emailCurrentPassword}
+										onChange={(e) => setEmailCurrentPassword(e.target.value)}
+										required
+									/>
+								</div>
+							)}
 							<div className="form-group">
 								<label>Teléfono</label>
 								<input inputMode="numeric" maxLength={10} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })} />
 							</div>
 							<div className="edit-actions">
 								<button type="submit" className="btn btn-primary" disabled={loading || JSON.stringify(form) === JSON.stringify(originalRef.current)}>Guardar</button>
-								<button type="button" className="btn btn-outline" onClick={() => { setForm({ ...originalRef.current }); setEditMode(false); }}>Cancelar</button>
+								<button type="button" className="btn btn-outline" onClick={() => { setForm({ ...originalRef.current }); setEmailCurrentPassword(''); setEditMode(false); }}>Cancelar</button>
 							</div>
 						</form>
 					)}
@@ -191,11 +216,12 @@ export default function Profile() {
 								/>
 							</div>
 							<div className="form-group">
-								<label>Nueva contraseña</label>
+								<label>Nueva contraseña (mínimo 8 caracteres)</label>
 								<input
 									type="password"
 									value={passwordForm.newPassword}
 									onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+									minLength={8}
 									required
 								/>
 							</div>

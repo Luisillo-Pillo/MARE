@@ -2,7 +2,8 @@ import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { authRequired } from '../middleware/auth.js';
-import { isValidEmail, isValidMexicanPhone, normalizePhone } from '../utils/validators.js';
+import { authLimiter } from '../middleware/rateLimit.js';
+import { isValidEmail, isValidMexicanPhone, normalizePhone, isValidPassword } from '../utils/validators.js';
 
 const router = Router();
 const JWT_EXPIRES = '48h';
@@ -13,7 +14,7 @@ function signToken(user) {
   });
 }
 
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
   try {
     const { name, email, phone, password } = req.body;
 
@@ -25,6 +26,9 @@ router.post('/register', async (req, res) => {
     }
     if (!isValidMexicanPhone(phone)) {
       return res.status(400).json({ message: 'Teléfono inválido. Debe tener 10 dígitos mexicanos' });
+    }
+    if (!isValidPassword(password)) {
+      return res.status(400).json({ message: 'La contraseña debe tener al menos 8 caracteres' });
     }
 
     const existing = await User.findOne({ email: email.toLowerCase() });
@@ -51,7 +55,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -87,6 +91,9 @@ router.put('/change-password', authRequired, async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ message: 'Contraseña actual y nueva son obligatorias' });
+    }
+    if (!isValidPassword(newPassword)) {
+      return res.status(400).json({ message: 'La nueva contraseña debe tener al menos 8 caracteres' });
     }
 
     const user = await User.findById(req.userId);

@@ -25,6 +25,11 @@ export default function Register() {
       setLoading(false);
       return;
     }
+    if (form.password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.');
+      setLoading(false);
+      return;
+    }
     if (form.password !== confirmPassword) {
       setError('Las contraseñas no coinciden.');
       setLoading(false);
@@ -92,13 +97,14 @@ export default function Register() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="password">Contraseña</label>
+              <label htmlFor="password">Contraseña (mínimo 8 caracteres)</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  minLength={8}
                   required
                 />
                 <button
