@@ -126,7 +126,7 @@ router.delete('/admin/clients/:id', authRequired, adminRequired, async (req, res
     }
 
     await Reservation.deleteMany({ user: user._id });
-    await ContactMessage.updateMany({ user: user._id }, { user: null });
+    await ContactMessage.deleteMany({ user: user._id });
     await user.deleteOne();
     res.json({ message: 'Cliente eliminado' });
   } catch (err) {
