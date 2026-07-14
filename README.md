@@ -69,6 +69,13 @@ El **primer usuario registrado** se convierte automáticamente en administrador.
 | `JWT_SECRET` | Tu clave secreta larga |
 | `NODE_ENV` | `production` |
 | `FRONTEND_URL` | URL de Vercel (la agregas después del paso 2) |
+| `SMTP_HOST` | Opcional — `smtp.gmail.com` para que el formulario de contacto envíe correo |
+| `SMTP_PORT` | Opcional — `587` |
+| `SMTP_USER` | Opcional — tu correo de envío |
+| `SMTP_PASS` | Opcional — contraseña de aplicación (no la contraseña normal de la cuenta) |
+| `CONTACT_EMAIL` | Opcional — a dónde llegan los mensajes de contacto y las notificaciones de nuevas reservaciones |
+
+> Si omites las variables `SMTP_*`/`CONTACT_EMAIL`, el formulario de contacto y las reservaciones siguen funcionando normalmente: todo se guarda en la base de datos y se ve en el panel admin, solo que no se enviará ningún correo.
 
 5. Despliega y copia la URL del servicio (ej. `https://mare-api.onrender.com`)
 6. Verifica: abre `https://tu-api.onrender.com/api/health` — debe responder `{"status":"ok"}`
@@ -110,16 +117,16 @@ El **primer usuario registrado** se convierte automáticamente en administrador.
 
 - [ ] Home carga con carrusel e imágenes
 - [ ] Registro e inicio de sesión funcionan
-- [ ] Formulario de contacto envía (revisa panel Mensajes del admin)
+- [ ] Formulario de contacto envía (revisa panel Mensajes del admin y, si configuraste `SMTP_*`, el correo de destino)
 - [ ] Crear reservación funciona
 - [ ] Panel admin visible para el primer usuario registrado
 
 ## Funcionalidades
 
 - Página de inicio con carrusel, información del negocio y paquetes
-- Formulario de contacto (guarda en BD, visible en panel admin)
-- Sistema de reservaciones con detección de conflictos de horario
-- Autenticación JWT (sesión de 48 horas)
+- Formulario de contacto (se guarda en BD, visible en panel admin, y opcionalmente envía un correo si configuras `SMTP_*`/`CONTACT_EMAIL`)
+- Sistema de reservaciones con detección de conflictos de horario (envía un correo de notificación al crearse, si configuras `SMTP_*`/`CONTACT_EMAIL`)
+- Autenticación JWT — la sesión permanece activa hasta que el usuario cierra sesión manualmente
 - Panel de administración: clientes, reservaciones y mensajes
 - Diseño responsive con menú hamburguesa en móvil
 - Mapa interactivo con OpenStreetMap

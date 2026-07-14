@@ -13,6 +13,11 @@ import contactRoutes from './routes/contact.js';
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
 
+// Render pone exactamente un proxy inverso delante del backend; confiar solo
+// en ese primer salto permite identificar la IP real de cada visitante
+// (necesario para que express-rate-limit funcione por usuario, no por proxy).
+app.set('trust proxy', 1);
+
 validateEnv();
 
 app.use(helmet());

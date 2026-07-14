@@ -2,6 +2,7 @@ import { Router } from 'express';
 import ContactMessage from '../models/ContactMessage.js';
 import { authRequired, adminRequired, optionalAuth } from '../middleware/auth.js';
 import { isValidEmail, isValidMexicanPhone, normalizePhone } from '../utils/validators.js';
+import { sendContactNotification } from '../utils/mailer.js';
 
 const router = Router();
 
@@ -26,6 +27,14 @@ router.post('/', optionalAuth, async (req, res) => {
       subject: subject.trim(),
       message: message.trim(),
       user: req.userId || null,
+    });
+
+    await sendContactNotification({
+      name: contactMessage.name,
+      email: contactMessage.email,
+      phone: contactMessage.phone,
+      subject: contactMessage.subject,
+      message: contactMessage.message,
     });
 
     res.status(201).json({ message: 'Mensaje enviado correctamente' });

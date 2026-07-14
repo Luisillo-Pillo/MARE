@@ -3,6 +3,7 @@ import Reservation, { STATUSES, EVENT_TYPES, PACKAGES } from '../models/Reservat
 import User from '../models/User.js';
 import { authRequired, adminRequired } from '../middleware/auth.js';
 import { hasReservationConflict } from '../utils/reservationConflict.js';
+import { sendReservationNotification } from '../utils/mailer.js';
 
 const router = Router();
 const DURATION_HOURS = 2;
@@ -78,6 +79,11 @@ router.post('/', authRequired, async (req, res) => {
       address: address.trim(),
     });
 
+    const user = await User.findById(req.userId);
+    if (user) {
+      await sendReservationNotification({ user, reservation });
+    }
+
     res.status(201).json(reservation);
   } catch (err) {
     console.error(err);
@@ -125,6 +131,12 @@ router.put('/:id', authRequired, async (req, res) => {
     reservation.address = address.trim();
 
     await reservation.save();
+
+    const owner = await User.findById(reservation.user);
+    if (owner) {
+      await sendReservationNotification({ user: owner, reservation, action: 'actualizada' });
+    }
+
     res.json(reservation);
   } catch (err) {
     console.error(err);
@@ -145,6 +157,11 @@ router.patch('/:id/cancel', authRequired, async (req, res) => {
 
     reservation.status = 'Cancelado';
     await reservation.save();
+
+    const owner = await User.findById(reservation.user);
+    if (owner) {
+      await sendReservationNotification({ user: owner, reservation, action: 'cancelada' });
+    }
 
     res.json(reservation);
   } catch (err) {
