@@ -79,12 +79,11 @@ router.post('/', authRequired, async (req, res) => {
       address: address.trim(),
     });
 
-    const user = await User.findById(req.userId);
-    if (user) {
-      await sendReservationNotification({ user, reservation });
-    }
-
     res.status(201).json(reservation);
+
+    User.findById(req.userId)
+      .then((user) => user && sendReservationNotification({ user, reservation }))
+      .catch((err) => console.error('Error al notificar reservación creada:', err.message));
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error al crear reservación' });
@@ -132,12 +131,11 @@ router.put('/:id', authRequired, async (req, res) => {
 
     await reservation.save();
 
-    const owner = await User.findById(reservation.user);
-    if (owner) {
-      await sendReservationNotification({ user: owner, reservation, action: 'actualizada' });
-    }
-
     res.json(reservation);
+
+    User.findById(reservation.user)
+      .then((owner) => owner && sendReservationNotification({ user: owner, reservation, action: 'actualizada' }))
+      .catch((err) => console.error('Error al notificar reservación actualizada:', err.message));
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error al actualizar reservación' });
@@ -158,12 +156,11 @@ router.patch('/:id/cancel', authRequired, async (req, res) => {
     reservation.status = 'Cancelado';
     await reservation.save();
 
-    const owner = await User.findById(reservation.user);
-    if (owner) {
-      await sendReservationNotification({ user: owner, reservation, action: 'cancelada' });
-    }
-
     res.json(reservation);
+
+    User.findById(reservation.user)
+      .then((owner) => owner && sendReservationNotification({ user: owner, reservation, action: 'cancelada' }))
+      .catch((err) => console.error('Error al notificar reservación cancelada:', err.message));
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error al cancelar reservación' });

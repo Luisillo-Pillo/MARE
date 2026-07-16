@@ -29,15 +29,15 @@ router.post('/', optionalAuth, async (req, res) => {
       user: req.userId || null,
     });
 
-    await sendContactNotification({
+    res.status(201).json({ message: 'Mensaje enviado correctamente' });
+
+    sendContactNotification({
       name: contactMessage.name,
       email: contactMessage.email,
       phone: contactMessage.phone,
       subject: contactMessage.subject,
       message: contactMessage.message,
-    });
-
-    res.status(201).json({ message: 'Mensaje enviado correctamente' });
+    }).catch((err) => console.error('Error al notificar mensaje de contacto:', err.message));
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error al enviar mensaje' });
