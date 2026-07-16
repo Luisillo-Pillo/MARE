@@ -7,12 +7,10 @@ import { authLimiter } from '../middleware/rateLimit.js';
 import { isValidEmail, isValidMexicanPhone, normalizePhone, isValidPassword } from '../utils/validators.js';
 
 const router = Router();
-const JWT_EXPIRES = '365d';
 
 function signToken(user) {
-  return jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
-    expiresIn: JWT_EXPIRES,
-  });
+  // Sin expiresIn: el token no expira por tiempo, solo cerrando sesión manualmente.
+  return jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET);
 }
 
 async function withReservationCount(user) {
