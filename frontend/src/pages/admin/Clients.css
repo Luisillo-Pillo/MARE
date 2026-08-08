@@ -32,6 +32,56 @@
     border: 1px solid #914721;
 }
 
+/* Columnas de ancho fijo (independientes del contenido de cada fila).
+   Solo se aplica en la vista de tabla real; abajo de 640px la tabla se
+   convierte en tarjetas apiladas y estos anchos no tienen sentido ahí. */
+@media (min-width: 641px) {
+    .admin-table {
+        table-layout: fixed;
+    }
+
+    .admin-table th:nth-child(1),
+    .admin-table td:nth-child(1) { width: 20%; }
+
+    .admin-table th:nth-child(2),
+    .admin-table td:nth-child(2) { width: 24%; }
+
+    .admin-table th:nth-child(3),
+    .admin-table td:nth-child(3) { width: 12%; }
+
+    .admin-table th:nth-child(4),
+    .admin-table td:nth-child(4) { width: 10%; }
+
+    .admin-table th:nth-child(5),
+    .admin-table td:nth-child(5) { width: 14%; }
+
+    .admin-table th:nth-child(6),
+    .admin-table td:nth-child(6) { width: 20%; }
+
+    /* La celda de Nombre trunca el texto dentro de client-name-cell (más
+       abajo), no en el <td>, porque ahí ya no hay solo texto sino el avatar
+       + el nombre en un contenedor flex. */
+    .admin-table td:not(.actions-cell):not(:first-child) {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.client-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+}
+
+.client-name-cell span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
 .admin-filters {
     display: flex;
     flex-wrap: wrap;

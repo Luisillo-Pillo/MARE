@@ -205,7 +205,6 @@ export default function AdminReservations() {
 										handleSearch();
 									}
 								}}
-								placeholder="Buscar reservación..."
 								aria-label="Buscar reservación..."
 							/>
 							<button

@@ -13,7 +13,7 @@ async function request(endpoint, options = {}) {
     res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
   } catch {
     throw new Error(
-      'No se pudo conectar con el servidor. Verifica que el backend en Render esté activo y que VITE_API_URL esté configurada en Vercel.'
+      'No se pudo conectar con el servidor. Verifica tu conexión a internet e inténtalo de nuevo en unos minutos.'
     );
   }
 

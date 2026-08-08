@@ -95,7 +95,7 @@ export default function Contact() {
                 </div>
                 <div className="form-group">
                   <label htmlFor="phone">Teléfono</label>
-                  <input id="phone" name="phone" inputMode="numeric" maxLength={10} value={form.phone} onChange={handleChange} required placeholder="10 dígitos" />
+                  <input id="phone" name="phone" inputMode="numeric" maxLength={10} value={form.phone} onChange={handleChange} required />
                 </div>
               </>
             )}

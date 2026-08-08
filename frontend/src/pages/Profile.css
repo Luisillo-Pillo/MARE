@@ -20,21 +20,6 @@
     text-align: left;
 }
 
-.profile-avatar {
-    flex-shrink: 0;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--color-orange), var(--color-rust));
-    color: var(--color-white);
-    font-size: 1.5rem;
-    font-weight: 700;
-    box-shadow: var(--shadow);
-}
-
 .profile-name {
     margin: 0 0 0.35rem;
     font-size: 1.25rem;

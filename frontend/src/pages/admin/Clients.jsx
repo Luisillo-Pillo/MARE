@@ -4,7 +4,97 @@ import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import './Clients.css';
 import ConfirmModal from '../../components/ConfirmModal';
+import ActionsMenu from '../../components/ActionsMenu';
+import Avatar from '../../components/Avatar';
 import { useToast } from '../../context/ToastContext';
+
+function UserIcon() {
+	return (
+		<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+			<circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="2" />
+			<path d="M4.5 20c1.4-3.5 4.5-5.5 7.5-5.5s6.1 2 7.5 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+		</svg>
+	);
+}
+
+function ShieldIcon() {
+	return (
+		<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+			<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+		</svg>
+	);
+}
+
+function TrashIcon() {
+	return (
+		<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+			<path d="M4 7h16M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7m2 0v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V7h10z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+		</svg>
+	);
+}
+
+function formatLastLogin(dateStr) {
+	if (!dateStr) return '—';
+	return new Date(dateStr).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// Fila de una tabla de clientes/administradores. Si es la cuenta del admin
+// que tiene la sesión iniciada, se muestra igual pero con "Quitar admin" y
+// "Eliminar" bloqueados: nadie puede degradarse o borrarse a sí mismo desde
+// aquí (el backend ya lo impide; esto lo refleja en la interfaz).
+function ClientRow({ client, isSelf, isMenuOpen, onMenuToggle, onMenuClose, onRoleChange, onDelete }) {
+	return (
+		<tr>
+			<td data-label="Nombre">
+				<div className="client-name-cell">
+					<Avatar name={client.name} seed={client._id} size={36} />
+					<span>{client.name}{isSelf ? ' (Tú)' : ''}</span>
+				</div>
+			</td>
+			<td data-label="Correo">{client.email}</td>
+			<td data-label="Teléfono">{client.phone}</td>
+			<td data-label="Reservaciones">{client.reservationCount}</td>
+			<td data-label="Conexión">{formatLastLogin(client.lastLoginAt)}</td>
+			<td className="actions-cell" data-label="Acciones">
+				<ActionsMenu open={isMenuOpen} onToggle={onMenuToggle} onClose={onMenuClose} label={`Acciones para ${client.name}`}>
+					<Link to={`/admin/clientes/${client._id}`} className="actions-menu-item" role="menuitem" onClick={onMenuClose}>
+						<UserIcon />
+						Ver perfil
+					</Link>
+					{client.role !== 'admin' ? (
+						<button type="button" className="actions-menu-item" role="menuitem" onClick={() => onRoleChange(client._id, 'admin')}>
+							<ShieldIcon />
+							Hacer admin
+						</button>
+					) : (
+						<button
+							type="button"
+							className="actions-menu-item"
+							role="menuitem"
+							onClick={() => onRoleChange(client._id, 'usuario')}
+							disabled={isSelf}
+							title={isSelf ? 'No puedes quitarte tu propio rol de administrador' : undefined}
+						>
+							<ShieldIcon />
+							Quitar admin
+						</button>
+					)}
+					<button
+						type="button"
+						className="actions-menu-item danger"
+						role="menuitem"
+						onClick={() => onDelete(client._id, client.name)}
+						disabled={isSelf}
+						title={isSelf ? 'No puedes eliminar tu propia cuenta' : undefined}
+					>
+						<TrashIcon />
+						Eliminar
+					</button>
+				</ActionsMenu>
+			</td>
+		</tr>
+	);
+}
 
 export default function Clients() {
 	const { user } = useAuth();
@@ -15,14 +105,16 @@ export default function Clients() {
 	const [error, setError] = useState('');
 	const [confirmState, setConfirmState] = useState(null);
 	const [deleteConfirm, setDeleteConfirm] = useState(null);
+	const [openMenuId, setOpenMenuId] = useState(null);
 	const { showToast } = useToast();
 
 	const load = async () => {
 		setLoading(true);
+		setOpenMenuId(null);
 		try {
 			const filterParam = filter === 'all' ? '' : filter === 'with' ? 'with' : 'without';
 			const data = await api.getClients(filterParam);
-			setClients(data.filter((c) => c._id !== user?._id));
+			setClients(data);
 		} catch (err) {
 			setError(err.message);
 		} finally {
@@ -45,7 +137,7 @@ export default function Clients() {
 	}, [filter, user]);
 
 	const handleRoleChange = async (id, role) => {
-		// open confirm modal
+		setOpenMenuId(null);
 		setConfirmState({ id, role });
 	};
 
@@ -66,6 +158,7 @@ export default function Clients() {
 	};
 
 	const handleDelete = (id, name) => {
+		setOpenMenuId(null);
 		setDeleteConfirm({ id, name });
 	};
 
@@ -93,7 +186,10 @@ export default function Clients() {
 			.includes(normalizedSearch);
 	});
 
-	const adminClients = filteredClients.filter((c) => c.role === 'admin');
+	// El admin que tiene la sesión iniciada siempre va primero en su tabla.
+	const adminClients = filteredClients
+		.filter((c) => c.role === 'admin')
+		.sort((a, b) => (a._id === user?._id ? -1 : b._id === user?._id ? 1 : 0));
 	const normalClients = filteredClients.filter((c) => c.role !== 'admin');
 
 	return (
@@ -117,7 +213,6 @@ export default function Clients() {
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
 								onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } }}
-								placeholder="Buscar cliente"
 								aria-label="Buscar cliente"
 							/>
 							<button type="button" className="search-icon-btn" onClick={handleSearch} aria-label="Buscar">
@@ -144,29 +239,23 @@ export default function Clients() {
 												<th>Nombre</th>
 												<th>Correo</th>
 												<th>Teléfono</th>
-												<th>Rol</th>
 												<th>Reservaciones</th>
+												<th>Conexión</th>
 												<th>Acciones</th>
 											</tr>
 										</thead>
 										<tbody>
 											{adminClients.map((c) => (
-												<tr key={c._id}>
-													<td data-label="Nombre">{c.name}</td>
-													<td data-label="Correo">{c.email}</td>
-													<td data-label="Teléfono">{c.phone}</td>
-													<td data-label="Rol">{c.role}</td>
-													<td data-label="Reservaciones">{c.reservationCount}</td>
-													<td className="actions-cell" data-label="Acciones">
-														<Link to={`/admin/clientes/${c._id}`} className="btn btn-secondary btn-sm">Ver perfil</Link>
-														{c.role !== 'admin' ? (
-															<button className="btn btn-primary btn-sm" onClick={() => handleRoleChange(c._id, 'admin')}>Hacer admin</button>
-														) : (
-															<button className="btn btn-outline btn-sm" onClick={() => handleRoleChange(c._id, 'usuario')}>Quitar admin</button>
-														)}
-														<button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id, c.name)}>Eliminar</button>
-													</td>
-												</tr>
+												<ClientRow
+													key={c._id}
+													client={c}
+													isSelf={c._id === user?._id}
+													isMenuOpen={openMenuId === c._id}
+													onMenuToggle={() => setOpenMenuId((id) => (id === c._id ? null : c._id))}
+													onMenuClose={() => setOpenMenuId(null)}
+													onRoleChange={handleRoleChange}
+													onDelete={handleDelete}
+												/>
 											))}
 										</tbody>
 									</table>
@@ -186,29 +275,23 @@ export default function Clients() {
 												<th>Nombre</th>
 												<th>Correo</th>
 												<th>Teléfono</th>
-												<th>Rol</th>
 												<th>Reservaciones</th>
+												<th>Conexión</th>
 												<th>Acciones</th>
 											</tr>
 										</thead>
 										<tbody>
 											{normalClients.map((c) => (
-												<tr key={c._id}>
-													<td data-label="Nombre">{c.name}</td>
-													<td data-label="Correo">{c.email}</td>
-													<td data-label="Teléfono">{c.phone}</td>
-													<td data-label="Rol">{c.role}</td>
-													<td data-label="Reservaciones">{c.reservationCount}</td>
-													<td className="actions-cell" data-label="Acciones">
-														<Link to={`/admin/clientes/${c._id}`} className="btn btn-secondary btn-sm">Ver perfil</Link>
-														{c.role !== 'admin' ? (
-															<button className="btn btn-primary btn-sm" onClick={() => handleRoleChange(c._id, 'admin')}>Hacer admin</button>
-														) : (
-															<button className="btn btn-outline btn-sm" onClick={() => handleRoleChange(c._id, 'usuario')}>Quitar admin</button>
-														)}
-														<button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id, c.name)}>Eliminar</button>
-													</td>
-												</tr>
+												<ClientRow
+													key={c._id}
+													client={c}
+													isSelf={c._id === user?._id}
+													isMenuOpen={openMenuId === c._id}
+													onMenuToggle={() => setOpenMenuId((id) => (id === c._id ? null : c._id))}
+													onMenuClose={() => setOpenMenuId(null)}
+													onRoleChange={handleRoleChange}
+													onDelete={handleDelete}
+												/>
 											))}
 										</tbody>
 									</table>

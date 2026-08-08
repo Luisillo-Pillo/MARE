@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import ReservationForm from '../../components/ReservationForm';
 import { api } from '../../services/api';
 import { statusClass } from '../../utils/status';
+import Avatar from '../../components/Avatar';
 import './UserProfile.css';
 
 function formatDate(dateStr) {
@@ -65,6 +66,9 @@ export default function UserProfile() {
         <h1 className="section-title">Perfil de {user.name}</h1>
 
         <div className="card" style={{ maxWidth: 600, marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+            <Avatar name={user.name} seed={user._id} size={72} />
+          </div>
           <p><strong>Nombre:</strong> {user.name}</p>
           <p><strong>Correo:</strong> {user.email}</p>
           <p><strong>Teléfono:</strong> {user.phone}</p>

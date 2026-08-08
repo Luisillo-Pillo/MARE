@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import './Profile.css';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import PasswordInput from '../components/PasswordInput';
+import Avatar from '../components/Avatar';
 
 export default function Profile() {
 	const { user, logout, refreshUser } = useAuth();
@@ -104,9 +106,7 @@ export default function Profile() {
 				<div className="card profile-card">
 					<div className="profile-header">
 						<div className="profile-identity">
-							<div className="profile-avatar" aria-hidden="true">
-								{(user?.name || '?').trim().charAt(0).toUpperCase()}
-							</div>
+							<Avatar name={user?.name} seed={user?._id} size={56} />
 							<div>
 								<h3 className="profile-name">{user?.name}</h3>
 								<span className={`profile-role-badge ${isAdmin ? 'admin' : 'user'}`}>{isAdmin ? 'Administrador' : 'Usuario'}</span>
@@ -143,11 +143,11 @@ export default function Profile() {
 							{form.email !== user?.email && (
 								<div className="form-group">
 									<label>Contraseña actual (requerida para cambiar el correo)</label>
-									<input
-										type="password"
+									<PasswordInput
 										value={emailCurrentPassword}
 										onChange={(e) => setEmailCurrentPassword(e.target.value)}
 										required
+										autoComplete="current-password"
 									/>
 								</div>
 							)}
@@ -208,30 +208,30 @@ export default function Profile() {
 							<h3 style={{ marginBottom: '1rem', color: 'var(--color-brown)' }}>Cambiar contraseña</h3>
 							<div className="form-group">
 								<label>Contraseña actual</label>
-								<input
-									type="password"
+								<PasswordInput
 									value={passwordForm.currentPassword}
 									onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
 									required
+									autoComplete="current-password"
 								/>
 							</div>
 							<div className="form-group">
 								<label>Nueva contraseña (mínimo 8 caracteres)</label>
-								<input
-									type="password"
+								<PasswordInput
 									value={passwordForm.newPassword}
 									onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
 									minLength={8}
 									required
+									autoComplete="new-password"
 								/>
 							</div>
 							<div className="form-group">
 								<label>Confirmar nueva contraseña</label>
-								<input
-									type="password"
+								<PasswordInput
 									value={passwordForm.confirmPassword}
 									onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
 									required
+									autoComplete="new-password"
 								/>
 							</div>
 							<div style={{ display: 'flex', gap: '0.75rem' }}>

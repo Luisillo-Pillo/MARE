@@ -54,6 +54,7 @@ router.post('/register', authLimiter, async (req, res) => {
       phone: normalizePhone(phone),
       password,
       role,
+      lastLoginAt: new Date(),
     });
 
     const token = signToken(user);
@@ -76,6 +77,9 @@ router.post('/login', authLimiter, async (req, res) => {
     if (!user || !valid) {
       return res.status(401).json({ message: 'Correo o contraseña incorrectos' });
     }
+
+    user.lastLoginAt = new Date();
+    await user.save();
 
     const token = signToken(user);
     res.json({ token, user: await withReservationCount(user) });

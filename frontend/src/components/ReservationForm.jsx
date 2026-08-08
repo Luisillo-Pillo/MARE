@@ -75,7 +75,6 @@ export default function ReservationForm({
             value={form.customService}
             onChange={handleChange}
             required
-            placeholder="Ej. Taquizas de pastor para 100 personas"
           />
         </div>
       )}
@@ -111,7 +110,6 @@ export default function ReservationForm({
           value={form.description}
           onChange={handleChange}
           required
-          placeholder="Cuéntanos sobre tu evento..."
         />
       </div>
 
@@ -131,7 +129,7 @@ export default function ReservationForm({
         </div>
         <div className="form-group">
           <label htmlFor="address">Dirección</label>
-          <input id="address" name="address" value={form.address} onChange={handleChange} required placeholder="Calle, número, colonia, ciudad" />
+          <input id="address" name="address" value={form.address} onChange={handleChange} required />
         </div>
       </div>
 
