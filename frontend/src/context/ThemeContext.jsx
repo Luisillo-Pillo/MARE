@@ -4,9 +4,10 @@ const ThemeContext = createContext(null);
 const STORAGE_KEY = 'mare_theme';
 
 function getInitialTheme() {
+  // El modo claro es el predeterminado: solo se usa oscuro si el usuario ya
+  // lo eligió antes (no seguimos prefers-color-scheme del sistema).
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === 'light' || stored === 'dark') return stored;
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return stored === 'dark' ? 'dark' : 'light';
 }
 
 export function ThemeProvider({ children }) {

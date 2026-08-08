@@ -10,14 +10,13 @@
     <script>
       // Aplica el tema guardado antes del primer render para evitar el
       // parpadeo de claro→oscuro al cargar. ThemeContext hace lo mismo en
-      // React y mantiene esto sincronizado después.
+      // React y mantiene esto sincronizado después. El modo claro es el
+      // predeterminado: no seguimos prefers-color-scheme del sistema, solo
+      // usamos oscuro si el usuario ya lo eligió antes.
       (function () {
         try {
           var stored = localStorage.getItem('mare_theme');
-          var theme = stored === 'light' || stored === 'dark'
-            ? stored
-            : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.setAttribute('data-theme', stored === 'dark' ? 'dark' : 'light');
         } catch (e) {
           /* localStorage bloqueado (modo privado, etc.): se queda en claro */
         }
