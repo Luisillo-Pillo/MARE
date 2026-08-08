@@ -2,7 +2,8 @@
 .profile-card {
     padding: 1.25rem;
     border-radius: 10px;
-    background: #fff;
+    background: var(--bg-surface);
+    color: var(--text-primary);
     box-shadow: 0 8px 22px rgba(29, 18, 10, 0.06);
 }
 
@@ -42,11 +43,11 @@
 
 .profile-row strong {
     min-width: 120px;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .profile-row span {
-    color: #222;
+    color: var(--text-primary);
     overflow-wrap: anywhere;
 }
 
@@ -118,7 +119,7 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: var(--color-white);
+    background: var(--bg-surface);
     border-left: 4px solid var(--color-gold);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -141,7 +142,7 @@
 
 .stat-label {
     font-size: 0.9rem;
-    color: #555;
+    color: var(--text-secondary);
 }
 
 .profile-cta {
@@ -150,7 +151,7 @@
     align-items: center;
     gap: 1.25rem;
     flex-wrap: wrap;
-    background: linear-gradient(135deg, var(--color-cream) 0%, #fff 100%);
+    background: linear-gradient(135deg, var(--bg-page) 0%, var(--bg-surface) 100%);
     border: 1px solid var(--color-gold);
     text-align: left;
 }
@@ -178,7 +179,7 @@
 }
 
 .profile-cta-text p {
-    color: #555;
+    color: var(--text-secondary);
     font-size: 0.95rem;
 }
 

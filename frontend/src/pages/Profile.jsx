@@ -106,7 +106,7 @@ export default function Profile() {
 				<div className="card profile-card">
 					<div className="profile-header">
 						<div className="profile-identity">
-							<Avatar name={user?.name} seed={user?._id} size={56} />
+							<Avatar name={user?.name} size={56} />
 							<div>
 								<h3 className="profile-name">{user?.name}</h3>
 								<span className={`profile-role-badge ${isAdmin ? 'admin' : 'user'}`}>{isAdmin ? 'Administrador' : 'Usuario'}</span>

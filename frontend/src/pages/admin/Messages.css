@@ -10,7 +10,8 @@
 	position: relative;
 	padding: 1.4rem 1.6rem 1.5rem 1.5rem;
 	border-radius: 14px;
-	background: linear-gradient(180deg, #fff 0%, #fcfaf8 100%);
+	background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-surface-hover) 100%);
+	color: var(--text-primary);
 	box-shadow: 0 16px 34px rgba(29,18,10,0.08);
 	border-left: 6px solid rgba(255, 160, 70, 0.9);
 	overflow: hidden;
@@ -62,31 +63,32 @@
 .subject-block .subject {
     display: block;
     font-size: 1.1rem;
-    color: #2a1f15;
+    color: var(--text-primary);
 }
 
 .meta {
     font-size: 0.9rem;
-    color: black;
+    color: var(--text-primary);
     margin-top: 0.35rem;
     line-height: 1.4;
     font-weight: bold;
 }
 
 .meta-name {
-    color: #332417;
+    color: var(--text-primary);
     font-weight: 500;
 }
 
 .message-date {
     font-size: 0.85rem;
-    color: #9c8b80;
+    color: var(--text-muted);
 }
 
 .message-body {
 	margin: 1rem 0 0;
 	padding: 1rem;
-	background: rgba(240, 218, 189, 0.9);
+	background: rgba(204, 161, 102, 0.18);
+	color: var(--text-primary);
 	border-radius: 12px;
 	white-space: pre-wrap;
 	overflow-wrap: anywhere;

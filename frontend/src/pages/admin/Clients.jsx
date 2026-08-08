@@ -38,61 +38,82 @@ function formatLastLogin(dateStr) {
 	return new Date(dateStr).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-// Fila de una tabla de clientes/administradores. Si es la cuenta del admin
-// que tiene la sesión iniciada, se muestra igual pero con "Quitar admin" y
-// "Eliminar" bloqueados: nadie puede degradarse o borrarse a sí mismo desde
-// aquí (el backend ya lo impide; esto lo refleja en la interfaz).
+// Tarjeta de un cliente/administrador. Reemplaza la fila de tabla anterior:
+// una tabla de 7 columnas nunca se acomodaba bien en pantallas medianas
+// (nombres, correos y badges tienen anchos muy distintos entre sí), así que
+// en vez de forzar columnas de ancho fijo, cada cliente es una tarjeta que
+// fluye con flexbox y se reordena sola según el espacio disponible.
+// Si es la cuenta del admin con la sesión iniciada, se ve igual pero con
+// "Quitar admin" y "Eliminar" bloqueados (el backend ya lo impide; esto lo
+// refleja en la interfaz).
 function ClientRow({ client, isSelf, isMenuOpen, onMenuToggle, onMenuClose, onRoleChange, onDelete }) {
 	return (
-		<tr>
-			<td data-label="Nombre">
-				<div className="client-name-cell">
-					<Avatar name={client.name} seed={client._id} size={36} />
-					<span>{client.name}{isSelf ? ' (Tú)' : ''}</span>
+		<div className={`card client-row${isSelf ? ' self' : ''}`}>
+			<div className="client-row-main">
+				<Avatar name={client.name} size={44} />
+				<div className="client-row-identity">
+					<div className="client-row-name">
+						<span>{client.name}</span>
+						{isSelf && <span className="self-badge">Tú</span>}
+						<span className={`role-badge ${client.role}`}>
+							{client.role === 'admin' ? 'Administrador' : 'Usuario'}
+						</span>
+					</div>
+					<div className="client-row-contact">
+						<span>{client.email}</span>
+						<span className="client-row-sep">·</span>
+						<span>{client.phone}</span>
+					</div>
 				</div>
-			</td>
-			<td data-label="Correo">{client.email}</td>
-			<td data-label="Teléfono">{client.phone}</td>
-			<td data-label="Reservaciones">{client.reservationCount}</td>
-			<td data-label="Conexión">{formatLastLogin(client.lastLoginAt)}</td>
-			<td className="actions-cell" data-label="Acciones">
-				<ActionsMenu open={isMenuOpen} onToggle={onMenuToggle} onClose={onMenuClose} label={`Acciones para ${client.name}`}>
-					<Link to={`/admin/clientes/${client._id}`} className="actions-menu-item" role="menuitem" onClick={onMenuClose}>
-						<UserIcon />
-						Ver perfil
-					</Link>
-					{client.role !== 'admin' ? (
-						<button type="button" className="actions-menu-item" role="menuitem" onClick={() => onRoleChange(client._id, 'admin')}>
-							<ShieldIcon />
-							Hacer admin
-						</button>
-					) : (
-						<button
-							type="button"
-							className="actions-menu-item"
-							role="menuitem"
-							onClick={() => onRoleChange(client._id, 'usuario')}
-							disabled={isSelf}
-							title={isSelf ? 'No puedes quitarte tu propio rol de administrador' : undefined}
-						>
-							<ShieldIcon />
-							Quitar admin
-						</button>
-					)}
+			</div>
+
+			<div className="client-row-stats">
+				<div className="client-stat">
+					<span className="client-stat-value">{client.reservationCount}</span>
+					<span className="client-stat-label">Reservas</span>
+				</div>
+				<div className="client-stat">
+					<span className="client-stat-value">{formatLastLogin(client.lastLoginAt)}</span>
+					<span className="client-stat-label">Conexión</span>
+				</div>
+			</div>
+
+			<ActionsMenu open={isMenuOpen} onToggle={onMenuToggle} onClose={onMenuClose} label={`Acciones para ${client.name}`}>
+				<Link to={`/admin/clientes/${client._id}`} className="actions-menu-item" role="menuitem" onClick={onMenuClose}>
+					<UserIcon />
+					Ver perfil
+				</Link>
+				{client.role !== 'admin' ? (
+					<button type="button" className="actions-menu-item" role="menuitem" onClick={() => onRoleChange(client._id, 'admin')}>
+						<ShieldIcon />
+						Hacer admin
+					</button>
+				) : (
 					<button
 						type="button"
-						className="actions-menu-item danger"
+						className="actions-menu-item"
 						role="menuitem"
-						onClick={() => onDelete(client._id, client.name)}
+						onClick={() => onRoleChange(client._id, 'usuario')}
 						disabled={isSelf}
-						title={isSelf ? 'No puedes eliminar tu propia cuenta' : undefined}
+						title={isSelf ? 'No puedes quitarte tu propio rol de administrador' : undefined}
 					>
-						<TrashIcon />
-						Eliminar
+						<ShieldIcon />
+						Quitar admin
 					</button>
-				</ActionsMenu>
-			</td>
-		</tr>
+				)}
+				<button
+					type="button"
+					className="actions-menu-item danger"
+					role="menuitem"
+					onClick={() => onDelete(client._id, client.name)}
+					disabled={isSelf}
+					title={isSelf ? 'No puedes eliminar tu propia cuenta' : undefined}
+				>
+					<TrashIcon />
+					Eliminar
+				</button>
+			</ActionsMenu>
+		</div>
 	);
 }
 
@@ -186,7 +207,7 @@ export default function Clients() {
 			.includes(normalizedSearch);
 	});
 
-	// El admin que tiene la sesión iniciada siempre va primero en su tabla.
+	// El admin que tiene la sesión iniciada siempre va primero en su sección.
 	const adminClients = filteredClients
 		.filter((c) => c.role === 'admin')
 		.sort((a, b) => (a._id === user?._id ? -1 : b._id === user?._id ? 1 : 0));
@@ -213,6 +234,7 @@ export default function Clients() {
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
 								onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } }}
+								placeholder="Buscar cliente"
 								aria-label="Buscar cliente"
 							/>
 							<button type="button" className="search-icon-btn" onClick={handleSearch} aria-label="Buscar">
@@ -232,33 +254,19 @@ export default function Clients() {
 						{adminClients.length > 0 && (
 							<section style={{ marginBottom: '2rem' }}>
 								<h2 className="section-title">Administradores</h2>
-								<div className="admin-table-wrap">
-									<table className="admin-table">
-										<thead>
-											<tr>
-												<th>Nombre</th>
-												<th>Correo</th>
-												<th>Teléfono</th>
-												<th>Reservaciones</th>
-												<th>Conexión</th>
-												<th>Acciones</th>
-											</tr>
-										</thead>
-										<tbody>
-											{adminClients.map((c) => (
-												<ClientRow
-													key={c._id}
-													client={c}
-													isSelf={c._id === user?._id}
-													isMenuOpen={openMenuId === c._id}
-													onMenuToggle={() => setOpenMenuId((id) => (id === c._id ? null : c._id))}
-													onMenuClose={() => setOpenMenuId(null)}
-													onRoleChange={handleRoleChange}
-													onDelete={handleDelete}
-												/>
-											))}
-										</tbody>
-									</table>
+								<div className="admin-list">
+									{adminClients.map((c) => (
+										<ClientRow
+											key={c._id}
+											client={c}
+											isSelf={c._id === user?._id}
+											isMenuOpen={openMenuId === c._id}
+											onMenuToggle={() => setOpenMenuId((id) => (id === c._id ? null : c._id))}
+											onMenuClose={() => setOpenMenuId(null)}
+											onRoleChange={handleRoleChange}
+											onDelete={handleDelete}
+										/>
+									))}
 								</div>
 							</section>
 						)}
@@ -266,35 +274,23 @@ export default function Clients() {
 						<section>
 							<h2 className="section-title">Usuarios</h2>
 							{normalClients.length === 0 ? (
-								<p>No se encontraron usuarios con esos criterios.</p>
+								<div className="card" style={{ textAlign: 'center' }}>
+									<p>No se encontraron usuarios con esos criterios.</p>
+								</div>
 							) : (
-								<div className="admin-table-wrap">
-									<table className="admin-table">
-										<thead>
-											<tr>
-												<th>Nombre</th>
-												<th>Correo</th>
-												<th>Teléfono</th>
-												<th>Reservaciones</th>
-												<th>Conexión</th>
-												<th>Acciones</th>
-											</tr>
-										</thead>
-										<tbody>
-											{normalClients.map((c) => (
-												<ClientRow
-													key={c._id}
-													client={c}
-													isSelf={c._id === user?._id}
-													isMenuOpen={openMenuId === c._id}
-													onMenuToggle={() => setOpenMenuId((id) => (id === c._id ? null : c._id))}
-													onMenuClose={() => setOpenMenuId(null)}
-													onRoleChange={handleRoleChange}
-													onDelete={handleDelete}
-												/>
-											))}
-										</tbody>
-									</table>
+								<div className="admin-list">
+									{normalClients.map((c) => (
+										<ClientRow
+											key={c._id}
+											client={c}
+											isSelf={c._id === user?._id}
+											isMenuOpen={openMenuId === c._id}
+											onMenuToggle={() => setOpenMenuId((id) => (id === c._id ? null : c._id))}
+											onMenuClose={() => setOpenMenuId(null)}
+											onRoleChange={handleRoleChange}
+											onDelete={handleDelete}
+										/>
+									))}
 								</div>
 							)}
 						</section>

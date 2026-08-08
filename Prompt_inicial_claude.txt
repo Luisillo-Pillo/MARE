@@ -1,0 +1,288 @@
+PROMPT INICIAL — CÓMO PEDIRLE A UNA IA QUE GENERE EL PROYECTO "MARE" DESDE CERO
+================================================================================
+
+Este archivo contiene el prompt que le daría a un asistente de IA (Claude,
+GPT, etc.) para que construya este proyecto completo desde cero, con todos
+los detalles necesarios para que el resultado sea equivalente al actual.
+
+--------------------------------------------------------------------------------
+PROMPT
+--------------------------------------------------------------------------------
+
+Quiero que construyas "MARE", una aplicación web full-stack para una empresa
+de catering/comida para eventos en Aguascalientes, México (bodas, XV años,
+eventos corporativos, cumpleaños, bautizos, etc.). El proyecto tiene dos
+partes: un backend API en Node/Express con MongoDB, y un frontend en React
+con Vite. Todo el texto de la interfaz y los mensajes debe estar en español
+(es-MX). Sigue estas especificaciones:
+
+## 1. Estructura general del repositorio
+
+Monorepo simple con dos carpetas independientes (cada una con su propio
+package.json, sin workspaces):
+
+```
+/backend    → API Express + MongoDB (Mongoose)
+/frontend   → SPA React + Vite
+```
+
+Incluye en la raíz un `.env.example`, un `README.md`, `.gitignore` (que
+ignore `node_modules`, `.env`/`.env.*` salvo `.env.example`, `dist`, etc.),
+y `render.yaml` (backend/) + `vercel.json` (frontend/) para el despliegue.
+
+## 2. Stack tecnológico
+
+**Backend** (Node.js, ESM — `"type": "module"` en package.json):
+- express 4
+- mongoose 8 (MongoDB)
+- jsonwebtoken (JWT)
+- bcryptjs (hash de contraseñas, costo 12)
+- cors
+- helmet
+- express-rate-limit
+- nodemailer (correos transaccionales vía SMTP, opcional)
+- dotenv
+
+**Frontend**:
+- React 18 + Vite 5
+- react-router-dom 6
+- react-leaflet + leaflet (mapa de ubicación)
+- Sin librería de UI de terceros: todo el diseño es CSS propio (variables
+  CSS, sin Tailwind ni Bootstrap)
+
+## 3. Modelo de datos (Mongoose)
+
+**User**
+- name, email (único, lowercase), phone (10 dígitos MX), password (hasheado
+  con bcrypt en un hook `pre('save')`), role (`'usuario' | 'admin'`, default
+  `'usuario'`)
+- lastLoginAt (Date, se actualiza en cada login/registro exitoso — para
+  mostrar "última conexión" en el panel admin)
+- resetPasswordTokenHash + resetPasswordExpires (para el flujo de "olvidé mi
+  contraseña"; guardar solo el HASH del token, nunca el token en claro;
+  ambos campos con `select: false`)
+- timestamps automáticos
+- Método `comparePassword`. Sobrescribir `toJSON()` para excluir siempre
+  `password`, `resetPasswordTokenHash` y `resetPasswordExpires` de cualquier
+  respuesta JSON.
+- El primer usuario que se registra en la base de datos (cuando
+  `User.countDocuments() === 0`) se crea automáticamente como `admin`; todos
+  los siguientes son `usuario`.
+
+**Reservation**
+- user (ref a User), service (enum de paquetes + `'Otro'`), customService,
+  eventType (enum: Boda/XV años/Corporativo/Cumpleaños/Bautizo/Otro),
+  customEventType, description, date, startTime, endTime (calculado),
+  duration (horas, fijo en 2), address, status (enum: Pendiente, Confirmado,
+  En proceso, Completado, Cancelado — default Pendiente)
+- Índice compuesto en (date, startTime)
+- Lógica de conflicto de horario: no permitir dos reservaciones (no
+  canceladas) que se traslapen en fecha/hora
+
+**ContactMessage**
+- name, email, phone, subject, message, user (ref opcional a User si el
+  remitente tenía sesión iniciada)
+
+## 4. Backend — rutas y lógica
+
+**Middlewares**
+- `authRequired`: exige `Authorization: Bearer <token>`, decodifica el JWT y
+  cuelga `req.userId`/`req.userRole`
+- `optionalAuth`: igual pero no falla si no hay token (para el formulario de
+  contacto, que puede usarse con o sin sesión)
+- `adminRequired`: **vuelve a consultar el usuario en la base de datos** (no
+  confía en el rol del JWT) y verifica `role === 'admin'`
+- `authLimiter` (rate limit estricto: 10 solicitudes/15 min) para
+  login/registro/forgot-password/reset-password
+- `publicFormLimiter` (más permisivo: 20/15 min) para el formulario de
+  contacto y la creación de reservaciones, para evitar spam sin frenar el
+  uso normal
+
+**`/api/auth`**
+- `POST /register` — valida campos, email, teléfono (10 dígitos), password
+  (mínimo 8 caracteres); rechaza si el correo ya existe; asigna rol admin al
+  primer usuario; devuelve `{ token, user }`
+- `POST /login` — valida credenciales con bcrypt, actualiza `lastLoginAt`,
+  devuelve `{ token, user }`
+- `GET /me` — usuario autenticado actual + conteo de sus reservaciones
+- `PUT /change-password` — requiere contraseña actual correcta
+- `POST /forgot-password` — genera un token aleatorio (crypto.randomBytes),
+  guarda solo su hash SHA-256 con expiración de 1 hora, envía un correo con
+  el link de reseteo. **Responde el mismo mensaje exista o no el correo**,
+  para no filtrar qué correos están registrados
+- `POST /reset-password` — valida el hash del token contra la BD y su
+  expiración, actualiza la contraseña, invalida el token usado
+- Los JWT expiran en 30 días (`expiresIn: '30d'`), no son de sesión
+  indefinida
+
+**`/api/users`**
+- `PUT /profile` — el usuario edita su nombre/teléfono libremente; cambiar
+  el correo requiere reingresar la contraseña actual
+- `GET /admin/clients` (admin) — lista todos los usuarios con su conteo de
+  reservaciones; filtro opcional `?filter=with|without` (con/sin
+  reservaciones)
+- `GET /admin/clients/:id` (admin) — perfil de un cliente + sus
+  reservaciones
+- `PUT /admin/clients/:id/role` (admin) — cambia el rol; **no permite** que
+  un admin se quite su propio rol, ni que se elimine el último admin
+  restante del sistema
+- `DELETE /admin/clients/:id` (admin) — elimina el usuario y en cascada sus
+  reservaciones y mensajes de contacto; mismas protecciones de "no puedes
+  eliminarte a ti mismo" / "debe quedar al menos un admin"
+
+**`/api/reservations`**
+- `GET /meta` — catálogo público de estatus/tipos de evento/paquetes (para
+  poblar selects en el frontend)
+- `GET /mine` (auth) — reservaciones del usuario en sesión
+- `POST /` (auth) — crea reservación, valida conflicto de horario, calcula
+  `endTime`, dispara correo de notificación al admin (async, sin bloquear
+  la respuesta al usuario)
+- `PUT /:id` (auth, dueño o admin) — edita, revalida conflicto excluyéndose
+  a sí misma
+- `PATCH /:id/cancel` (auth, dueño o admin) — cancela
+- `GET /admin/all`, `POST /admin`, `PUT /admin/:id`, `PATCH
+  /admin/:id/status`, `DELETE /admin/:id` (todas admin) — gestión completa
+  desde el panel, incluyendo crear/editar reservaciones a nombre de
+  cualquier cliente
+
+**`/api/contact`**
+- `POST /` (optionalAuth + publicFormLimiter) — guarda el mensaje y envía
+  notificación por correo al admin
+- `GET /admin`, `DELETE /admin/:id` (admin) — bandeja de mensajes
+
+**Seguridad a tener en cuenta**
+- `helmet()` + CORS con lista blanca de orígenes vía `FRONTEND_URL` (soporta
+  varias URLs separadas por coma) + en producción permite automáticamente
+  cualquier subdominio `*.vercel.app`
+- `app.set('trust proxy', 1)` (un solo proxy inverso delante, típico de
+  Render) para que el rate limiting identifique la IP real
+- Nunca loguear ni exponer secretos; `validateEnv()` al arrancar que aborta
+  el proceso si faltan `JWT_SECRET`/`MONGODB_URI`, con mensajes de ayuda
+  claros
+- Todas las contraseñas con bcrypt costo 12; nunca se devuelven en JSON
+- Sanitizar entradas: validar formato de email/teléfono en backend, no solo
+  en frontend
+- Mensajes de error dirigidos al usuario final: nunca exponer detalles de
+  infraestructura (nombres de proveedores de hosting, variables de entorno,
+  stack traces) en las respuestas ni en los mensajes que ve el usuario
+
+## 5. Frontend — páginas y componentes
+
+**Páginas públicas**: Home (hero + paquetes + carrusel), Contact (formulario
++ mapa de Leaflet con la ubicación del negocio), Reservation (formulario de
+solicitud de reservación, requiere sesión), ReservationConfirmation, Login,
+Register, ForgotPassword, ResetPassword, NotFound
+
+**Páginas de usuario autenticado**: Profile (editar datos, cambiar
+contraseña, ver stats), Events ("Mis eventos" — sus propias reservaciones,
+con edición/cancelación)
+
+**Panel de administración** (rutas protegidas `adminOnly`):
+- Clients — lista de administradores y usuarios en tarjetas (no tabla:
+  facilita que el layout se acomode solo en pantallas angostas), buscador,
+  filtros (con/sin reservaciones), menú de acciones desplegable por
+  cliente (ver perfil / hacer o quitar admin / eliminar), con protecciones
+  para no poder autodegradarte ni autoeliminarte
+- UserProfile (admin) — detalle de un cliente + sus reservaciones + crear
+  reservación a su nombre
+- AdminReservations — gestión completa de reservaciones agrupadas por
+  estatus, con buscador y creación/edición
+- Messages — bandeja de mensajes de contacto
+
+**Componentes compartidos reutilizables**
+- `Avatar` — genera iniciales automáticamente a partir del nombre (primera
+  letra del primer nombre + primera letra del último apellido), color de
+  marca fijo e igual para todos los usuarios; **no editable ni subible por
+  el usuario**, siempre calculado a partir de sus datos
+- `ActionsMenu` — botón cuadrado tipo "⋮" que despliega un menú de acciones;
+  se renderiza en un portal a `document.body` para no quedar recortado por
+  el `overflow` de contenedores; se cierra solo (clic afuera, Escape,
+  scroll)
+- `PasswordInput` — input de contraseña con botón integrado (dentro del
+  mismo campo) para mostrar/ocultar
+- `ConfirmModal`, `ToastContext` (notificaciones), `ProtectedRoute` (guarda
+  de rutas por sesión/rol), `Navbar`, `Footer`, `Layout`, `Carousel`,
+  `PackageCard`, `Map`
+
+**Estado global (Context API, sin Redux)**
+- `AuthContext` — usuario en sesión, login/logout/registro; el cliente
+  detecta un 401 con token presente (sesión expirada) y desloguea
+  automáticamente
+- `ToastContext` — notificaciones tipo snackbar
+- `ThemeContext` — modo claro/oscuro alternable (ver sección de diseño)
+
+**Cliente HTTP**: un módulo `services/api.js` centralizado con un `fetch`
+wrapper único que agrega el header `Authorization`, parsea errores del
+backend a un formato consistente, y expone un objeto `api` con un método
+por endpoint (no llamadas a fetch sueltas por componente)
+
+## 6. Diseño / identidad visual
+
+- Paleta de marca en variables CSS (`:root` en un `index.css` global):
+  tonos cálidos — café/marrón oscuro, naranja, dorado dorado/mostaza,
+  óxido/terracota, crema como fondo de página, sin usar ningún framework de
+  UI
+- Tipografía del sistema (`'Segoe UI', system-ui, -apple-system,
+  sans-serif`)
+- Componentes base reutilizables definidos una sola vez en el CSS global:
+  `.btn` (variantes primary/secondary/outline/danger), `.card`,
+  `.form-group`, `.alert`, `.status-badge` (colores por estatus de
+  reservación), `.section-title` (con acento de línea degradada debajo)
+- Modo oscuro alternable: un botón (ícono sol/luna) en el Navbar cambia un
+  atributo `data-theme` en `<html>`, persistido en localStorage y con
+  detección de `prefers-color-scheme` como valor inicial. Implementar
+  redefiniendo tokens de tema (fondo de página, fondo de superficie/tarjeta,
+  texto primario/secundario, bordes) como variables CSS que cambian de
+  valor bajo `:root[data-theme="dark"]`, en vez de tener que sobreescribir
+  cada archivo de estilos por separado. Agregar un script inline mínimo en
+  `index.html` que aplique el tema guardado antes del primer render, para
+  evitar parpadeo
+- Mobile-first / responsive en todas las páginas; los formularios y tablas
+  administrativas deben refluir en pantallas angostas sin scroll horizontal
+  forzado cuando sea evitable
+
+## 7. Variables de entorno
+
+**Backend** (`backend/.env`):
+```
+MONGODB_URI=
+JWT_SECRET=            # cadena aleatoria de 32+ caracteres
+PORT=5000
+NODE_ENV=development|production
+FRONTEND_URL=          # una o varias URLs separadas por coma
+SMTP_HOST=             # opcional — sin esto, la app funciona pero no manda correos
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+CONTACT_EMAIL=         # a dónde llegan los correos de notificación
+```
+
+**Frontend** (`frontend/.env`):
+```
+VITE_API_URL=http://localhost:5000/api
+```
+
+## 8. Despliegue objetivo
+
+- Backend en Render (Node, `render.yaml` con `rootDir: backend`); Render
+  inyecta `PORT` automáticamente, no hay que fijarlo a mano
+- Frontend en Vercel (`vercel.json` con rewrite de todas las rutas a
+  `/index.html` para que el router de React funcione en despliegues
+  estáticos)
+- Base de datos en MongoDB Atlas
+
+## 9. Calidad de código esperada
+
+- Comentarios en español, breves, explicando el "por qué" cuando la lógica
+  no es obvia (p. ej. por qué se revalida el rol contra la base de datos en
+  vez de confiar en el JWT, por qué el token de reseteo se guarda hasheado)
+- Componentes de React pequeños y con una responsabilidad clara; extraer
+  piezas repetidas (iconos SVG, filas de tabla/tarjeta, badges) a funciones
+  o componentes reutilizables en vez de duplicar JSX
+- Validar tanto en frontend (UX inmediata) como en backend (fuente de
+  verdad; nunca confiar solo en la validación del cliente)
+- Mensajes de error siempre en español, claros para un usuario no técnico
+
+--------------------------------------------------------------------------------
+FIN DEL PROMPT
+--------------------------------------------------------------------------------

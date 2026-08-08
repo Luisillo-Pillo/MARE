@@ -19,7 +19,7 @@
 .admin-filters button {
     padding: 0.5rem 1rem;
     border: 2px solid var(--color-gold);
-    background: var(--color-white);
+    background: var(--bg-surface);
     color: var(--color-brown);
     border-radius: 8px;
     cursor: pointer;
@@ -58,20 +58,23 @@
 
 .admin-search-input-reservation {
     padding: 0.75rem 0.5rem;
-    border: 1px solid #914721;
+    border: 1px solid var(--color-brown);
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
     min-width: 160px;
     max-width: 170px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
 }
 
 .search-icon-btn-reservation {
     padding: 0.75rem 0.5rem;
-    border: 1px solid #914721;
+    border: 1px solid var(--color-brown);
     border-left: 0px;
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
-    color: #914721;
+    background: var(--bg-surface);
+    color: var(--color-brown);
 }
 
 .actions-cell {
@@ -84,7 +87,9 @@
 .status-select {
     padding: 0.35rem 0.5rem;
     border-radius: 6px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    color: var(--text-primary);
 }
 
 .filter-count {

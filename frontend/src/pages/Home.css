@@ -4,7 +4,7 @@
 
 .about-section {
   padding: 4rem 0;
-  background: var(--color-white);
+  background: var(--bg-surface);
 }
 
 .about-grid {
@@ -17,7 +17,7 @@
 .about-text p {
   margin-bottom: 1rem;
   font-size: 1.05rem;
-  color: #333;
+  color: var(--text-secondary);
 }
 
 .about-logo img {
@@ -31,7 +31,7 @@
 
 .packages-section {
   padding: 4rem 0;
-  background: linear-gradient(180deg, var(--color-cream) 0%, #fff 100%);
+  background: linear-gradient(180deg, var(--bg-page) 0%, var(--bg-surface) 100%);
 }
 
 .packages-grid {
@@ -51,7 +51,7 @@
 
 .home-admin-actions {
   padding: 3rem 0;
-  background: #f8f2eb;
+  background: var(--bg-surface-hover);
 }
 
 .admin-actions-row {

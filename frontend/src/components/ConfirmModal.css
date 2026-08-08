@@ -1,14 +1,15 @@
 .confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: var(--overlay-bg);
   display:flex;
   align-items:center;
   justify-content:center;
   z-index: 1200;
 }
 .confirm-modal {
-  background: var(--color-white);
+  background: var(--bg-surface);
+  color: var(--text-primary);
   padding: 1.25rem;
   border-radius: 10px;
   max-width: 420px;
@@ -20,9 +21,8 @@
 }
 
 .confirm-modal p {
-    margin-bottom:
-    1rem; color:
-    #333;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
 }
 
 .confirm-actions {

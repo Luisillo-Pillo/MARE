@@ -4,9 +4,10 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	background: linear-gradient(135deg, var(--color-orange), var(--color-rust));
 	color: var(--color-white);
 	font-weight: 700;
 	line-height: 1;
 	user-select: none;
-	box-shadow: var(--shadow);
+	box-shadow: 0 0 0 3px rgba(204, 161, 102, 0.35), var(--shadow);
 }

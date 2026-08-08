@@ -4,9 +4,9 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	border: 2px solid #ddd;
-	border-radius: 8px;
-	background: var(--color-white);
+	border: 2px solid var(--border-color);
+	border-radius: 0;
+	background: var(--bg-surface);
 	color: var(--color-brown);
 	cursor: pointer;
 	transition: border-color 0.2s, background 0.2s;
@@ -14,14 +14,14 @@
 
 .actions-menu-trigger:hover {
 	border-color: var(--color-gold);
-	background: #f8f4ee;
+	background: var(--bg-surface-hover);
 }
 
 .actions-menu-dropdown {
 	position: fixed;
 	z-index: 1000;
 	min-width: 190px;
-	background: var(--color-white);
+	background: var(--bg-surface);
 	border-radius: 10px;
 	box-shadow: var(--shadow);
 	padding: 0.4rem;
@@ -39,7 +39,7 @@
 	border: none;
 	border-radius: 6px;
 	background: transparent;
-	color: var(--color-dark);
+	color: var(--text-primary);
 	font-size: 0.9rem;
 	text-align: left;
 	cursor: pointer;
@@ -47,7 +47,7 @@
 }
 
 .actions-menu-item:hover {
-	background: #f3efe8;
+	background: var(--bg-surface-hover);
 }
 
 .actions-menu-item svg {
@@ -57,11 +57,11 @@
 }
 
 .actions-menu-item.danger {
-	color: #c0392b;
+	color: #e35b4a;
 }
 
 .actions-menu-item.danger:hover {
-	background: #fdecea;
+	background: rgba(192, 57, 43, 0.15);
 }
 
 .actions-menu-item:disabled {

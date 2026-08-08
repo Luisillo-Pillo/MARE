@@ -11,6 +11,36 @@
   --nav-height: 72px;
   --shadow: 0 4px 20px rgba(5, 4, 4, 0.15);
   --radius: 12px;
+
+  /* Tokens de tema: el resto del proyecto usa estos (no --color-white/
+     --color-dark/--color-cream directamente) para fondos de página,
+     superficies (tarjetas, inputs, menús) y texto, así el modo oscuro los
+     puede redefinir una sola vez aquí sin tocar cada archivo .css. Los
+     colores de marca de arriba (naranja/dorado/óxido/café) se quedan casi
+     igual en ambos temas: son acentos, no fondos ni texto de cuerpo. */
+  --bg-page: var(--color-cream);
+  --bg-surface: var(--color-white);
+  --bg-surface-hover: #f8f4ee;
+  --text-primary: var(--color-dark);
+  --text-secondary: #5c5750;
+  --text-muted: #8c857c;
+  --border-color: #e2ddd4;
+  --overlay-bg: rgba(5, 4, 4, 0.6);
+}
+
+:root[data-theme='dark'] {
+  --color-brown: #d9a06c;
+  --color-gold: #d9b073;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+
+  --bg-page: #16130f;
+  --bg-surface: #241f19;
+  --bg-surface-hover: #2c2620;
+  --text-primary: #f2ece2;
+  --text-secondary: #cabfb0;
+  --text-muted: #948c80;
+  --border-color: #3a332b;
+  --overlay-bg: rgba(0, 0, 0, 0.7);
 }
 
 *,
@@ -27,10 +57,11 @@ html {
 
 body {
   font-family: var(--font-main);
-  background: var(--color-cream);
-  color: var(--color-dark);
+  background: var(--bg-page);
+  color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
 }
 
 a {
@@ -139,10 +170,11 @@ textarea {
 .form-group textarea {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 2px solid #ddd;
+  border: 2px solid var(--border-color);
   border-radius: 8px;
-  background: var(--color-white);
-  transition: border-color 0.2s;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
 }
 
 .form-group input:focus,
@@ -175,11 +207,25 @@ textarea {
   border: 1px solid #c8e6c9;
 }
 
+:root[data-theme='dark'] .alert-error {
+  background: rgba(192, 57, 43, 0.18);
+  color: #ff8a76;
+  border-color: rgba(192, 57, 43, 0.4);
+}
+
+:root[data-theme='dark'] .alert-success {
+  background: rgba(46, 125, 50, 0.18);
+  color: #7bd88f;
+  border-color: rgba(46, 125, 50, 0.4);
+}
+
 .card {
-  background: var(--color-white);
+  background: var(--bg-surface);
+  color: var(--text-primary);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 1.5rem;
+  transition: background 0.2s, color 0.2s;
 }
 
 .status-badge {
@@ -196,6 +242,12 @@ textarea {
 .status-Completado { background: #e2e3e5; color: #383d41; }
 .status-Cancelado { background: #f8d7da; color: #721c24; }
 
+:root[data-theme='dark'] .status-Pendiente { background: rgba(255, 193, 7, 0.18); color: #ffcf5c; }
+:root[data-theme='dark'] .status-Confirmado { background: rgba(40, 167, 69, 0.2); color: #7bd88f; }
+:root[data-theme='dark'] .status-En-proceso { background: rgba(0, 123, 255, 0.2); color: #7fb8ff; }
+:root[data-theme='dark'] .status-Completado { background: rgba(148, 156, 163, 0.22); color: #d3d7da; }
+:root[data-theme='dark'] .status-Cancelado { background: rgba(220, 53, 69, 0.2); color: #ff9c9c; }
+
 .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -210,7 +262,7 @@ textarea {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--color-white);
+  background: var(--bg-surface);
   border: 2px solid var(--color-gold);
   color: var(--color-brown);
   display: flex;
@@ -224,6 +276,10 @@ textarea {
 
 .back-btn:hover {
   background: var(--color-gold);
+  /* Fijo: en modo oscuro --color-brown se aclara para leerse bien como
+     texto normal, pero eso le quitaría el contraste contra el propio
+     --color-gold (también más claro en oscuro) en este hover puntual. */
+  color: var(--color-dark);
 }
 
 @media (max-width: 768px) {

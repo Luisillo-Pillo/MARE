@@ -1,5 +1,6 @@
 .package-card {
-  background: var(--color-white);
+  background: var(--bg-surface);
+  color: var(--text-primary);
   border-radius: var(--radius);
   padding: 1.75rem;
   box-shadow: var(--shadow);
@@ -28,7 +29,7 @@
 
 .package-card li {
   padding: 0.4rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color);
   font-size: 0.95rem;
 }
 

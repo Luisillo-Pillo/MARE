@@ -7,6 +7,22 @@
     <meta name="description" content="MARE - Servicio de comida para eventos en Aguascalientes" />
     <title>MARE Eventos</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script>
+      // Aplica el tema guardado antes del primer render para evitar el
+      // parpadeo de claro→oscuro al cargar. ThemeContext hace lo mismo en
+      // React y mantiene esto sincronizado después.
+      (function () {
+        try {
+          var stored = localStorage.getItem('mare_theme');
+          var theme = stored === 'light' || stored === 'dark'
+            ? stored
+            : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {
+          /* localStorage bloqueado (modo privado, etc.): se queda en claro */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

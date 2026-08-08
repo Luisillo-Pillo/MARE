@@ -67,7 +67,7 @@ export default function UserProfile() {
 
         <div className="card" style={{ maxWidth: 600, marginBottom: '2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-            <Avatar name={user.name} seed={user._id} size={72} />
+            <Avatar name={user.name} size={72} />
           </div>
           <p><strong>Nombre:</strong> {user.name}</p>
           <p><strong>Correo:</strong> {user.email}</p>
