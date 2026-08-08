@@ -74,6 +74,36 @@ export async function sendContactNotification({ name, email, phone, subject, mes
   });
 }
 
+export async function sendPasswordResetEmail({ to, name, resetUrl }) {
+  const t = getTransporter();
+  if (!t) {
+    console.warn(
+      'Correo no enviado (restablecer contraseña): configura SMTP_HOST, SMTP_PORT, SMTP_USER y SMTP_PASS en el .env para activarlo.'
+    );
+    return;
+  }
+
+  try {
+    await t.sendMail({
+      from: `"MARE — Sitio web" <${process.env.SMTP_USER}>`,
+      to,
+      subject: 'Restablece tu contraseña — MARE',
+      text:
+        `Hola ${name},\n\n` +
+        `Recibimos una solicitud para restablecer tu contraseña. Si fuiste tú, abre este enlace (válido por 1 hora):\n${resetUrl}\n\n` +
+        'Si no solicitaste esto, puedes ignorar este correo.',
+      html: `
+        <p>Hola ${escapeHtml(name)},</p>
+        <p>Recibimos una solicitud para restablecer tu contraseña. Si fuiste tú, haz clic en el siguiente enlace (válido por 1 hora):</p>
+        <p><a href="${resetUrl}">Restablecer contraseña</a></p>
+        <p>Si no solicitaste esto, puedes ignorar este correo.</p>
+      `,
+    });
+  } catch (err) {
+    console.error('Error al enviar correo de restablecimiento de contraseña:', err.message);
+  }
+}
+
 const RESERVATION_ACTION_LABELS = {
   creada: 'Nueva solicitud de reservación',
   actualizada: 'Reservación actualizada',

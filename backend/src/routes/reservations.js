@@ -2,6 +2,7 @@ import { Router } from 'express';
 import Reservation, { STATUSES, EVENT_TYPES, PACKAGES } from '../models/Reservation.js';
 import User from '../models/User.js';
 import { authRequired, adminRequired } from '../middleware/auth.js';
+import { publicFormLimiter } from '../middleware/rateLimit.js';
 import { hasReservationConflict } from '../utils/reservationConflict.js';
 import { sendReservationNotification } from '../utils/mailer.js';
 
@@ -51,7 +52,7 @@ router.get('/mine', authRequired, async (req, res) => {
   }
 });
 
-router.post('/', authRequired, async (req, res) => {
+router.post('/', authRequired, publicFormLimiter, async (req, res) => {
   try {
     const error = validateReservationBody(req.body);
     if (error) return res.status(400).json({ message: error });

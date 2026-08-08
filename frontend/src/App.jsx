@@ -10,6 +10,8 @@ import Reservation from './pages/Reservation';
 import ReservationConfirmation from './pages/ReservationConfirmation';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import Events from './pages/Events';
 import Clients from './pages/admin/Clients';
@@ -21,7 +23,9 @@ import NotFound from './pages/NotFound';
 function AppRoutes() {
   const location = useLocation();
   const isHome = location.pathname === '/';
-  const isAuthPage = ['/iniciar-sesion', '/registro'].includes(location.pathname);
+  const isAuthPage =
+    ['/iniciar-sesion', '/registro', '/olvide-password'].includes(location.pathname) ||
+    location.pathname.startsWith('/restablecer-password/');
   const showBack = !isHome;
   const alwaysHomeBack = isAuthPage;
 
@@ -38,6 +42,8 @@ function AppRoutes() {
         <Route path="/reservacion-confirmada" element={<ReservationConfirmation />} />
         <Route path="/iniciar-sesion" element={<Login />} />
         <Route path="/registro" element={<Register />} />
+        <Route path="/olvide-password" element={<ForgotPassword />} />
+        <Route path="/restablecer-password/:token" element={<ResetPassword />} />
         <Route
           path="/perfil"
           element={

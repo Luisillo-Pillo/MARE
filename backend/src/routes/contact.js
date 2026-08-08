@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import ContactMessage from '../models/ContactMessage.js';
 import { authRequired, adminRequired, optionalAuth } from '../middleware/auth.js';
+import { publicFormLimiter } from '../middleware/rateLimit.js';
 import { isValidEmail, isValidMexicanPhone, normalizePhone } from '../utils/validators.js';
 import { sendContactNotification } from '../utils/mailer.js';
 
 const router = Router();
 
-router.post('/', optionalAuth, async (req, res) => {
+router.post('/', publicFormLimiter, optionalAuth, async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
 

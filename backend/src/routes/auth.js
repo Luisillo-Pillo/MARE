@@ -1,16 +1,21 @@
 import { Router } from 'express';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Reservation from '../models/Reservation.js';
 import { authRequired } from '../middleware/auth.js';
 import { authLimiter } from '../middleware/rateLimit.js';
 import { isValidEmail, isValidMexicanPhone, normalizePhone, isValidPassword } from '../utils/validators.js';
+import { sendPasswordResetEmail } from '../utils/mailer.js';
+
+const TOKEN_TTL = '30d';
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hora
 
 const router = Router();
 
 function signToken(user) {
-  // Sin expiresIn: el token no expira por tiempo, solo cerrando sesión manualmente.
-  return jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET);
+  // La sesión expira 30 días después de iniciar sesión o registrarse.
+  return jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: TOKEN_TTL });
 }
 
 async function withReservationCount(user) {
@@ -111,6 +116,70 @@ router.put('/change-password', authRequired, async (req, res) => {
     res.json({ message: 'Contraseña actualizada' });
   } catch {
     res.status(500).json({ message: 'Error al cambiar contraseña' });
+  }
+});
+
+router.post('/forgot-password', authLimiter, async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email?.trim() || !isValidEmail(email)) {
+      return res.status(400).json({ message: 'Correo electrónico inválido' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+    // Siempre respondemos igual, exista o no el correo, para no filtrar qué
+    // correos están registrados.
+    if (user) {
+      const rawToken = crypto.randomBytes(32).toString('hex');
+      user.resetPasswordTokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+      user.resetPasswordExpires = new Date(Date.now() + RESET_TOKEN_TTL_MS);
+      await user.save();
+
+      const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173')
+        .split(',')[0]
+        .trim()
+        .replace(/\/$/, '');
+      const resetUrl = `${frontendUrl}/restablecer-password/${rawToken}`;
+
+      sendPasswordResetEmail({ to: user.email, name: user.name, resetUrl }).catch((err) =>
+        console.error('Error al enviar correo de restablecimiento:', err.message)
+      );
+    }
+
+    res.json({ message: 'Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al procesar la solicitud' });
+  }
+});
+
+router.post('/reset-password', authLimiter, async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !isValidPassword(newPassword)) {
+      return res.status(400).json({ message: 'Solicitud inválida. La contraseña debe tener al menos 8 caracteres.' });
+    }
+
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const user = await User.findOne({
+      resetPasswordTokenHash: tokenHash,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'El enlace no es válido o ya expiró. Solicita uno nuevo.' });
+    }
+
+    user.password = newPassword;
+    user.resetPasswordTokenHash = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    res.json({ message: 'Contraseña actualizada. Ya puedes iniciar sesión.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al restablecer la contraseña' });
   }
 });
 

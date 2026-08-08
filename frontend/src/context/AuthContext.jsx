@@ -32,6 +32,14 @@ export function AuthProvider({ children }) {
     loadUser();
   }, [loadUser]);
 
+  useEffect(() => {
+    // El cliente de API dispara este evento cuando cualquier request recibe
+    // 401 con un token presente (sesión expirada o revocada en el servidor).
+    const handleExpired = () => setUser(null);
+    window.addEventListener('mare:auth-expired', handleExpired);
+    return () => window.removeEventListener('mare:auth-expired', handleExpired);
+  }, []);
+
   const login = async (email, password) => {
     const data = await api.login({ email, password });
     localStorage.setItem('mare_token', data.token);

@@ -20,6 +20,12 @@ async function request(endpoint, options = {}) {
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
+    if (res.status === 401 && token) {
+      // La sesión expiró (token de 30 días vencido o inválido): limpiamos el
+      // token y avisamos a la app para que actualice el estado de auth.
+      localStorage.removeItem('mare_token');
+      window.dispatchEvent(new Event('mare:auth-expired'));
+    }
     const error = new Error(data.message || 'Error en la solicitud');
     error.status = res.status;
     error.data = data;
@@ -33,6 +39,9 @@ export const api = {
   login: (body) => request('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
   me: () => request('/auth/me'),
   changePassword: (body) => request('/auth/change-password', { method: 'PUT', body: JSON.stringify(body) }),
+  forgotPassword: (email) => request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+  resetPassword: (token, newPassword) =>
+    request('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, newPassword }) }),
   updateProfile: (body) => request('/users/profile', { method: 'PUT', body: JSON.stringify(body) }),
 
   sendContact: (body) => request('/contact', { method: 'POST', body: JSON.stringify(body) }),
