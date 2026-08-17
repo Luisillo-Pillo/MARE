@@ -1,31 +1,32 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
 import { BUSINESS } from '../constants/packages';
-import 'leaflet/dist/leaflet.css';
 import './Map.css';
 
-const icon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
-
 export default function Map() {
+  const [lat, lng] = BUSINESS.coords;
+  const src = `https://www.google.com/maps?q=${lat},${lng}&hl=es&z=16&output=embed`;
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+
   return (
-    <MapContainer center={BUSINESS.coords} zoom={16} scrollWheelZoom={false} style={{ height: '350px', width: '100%', borderRadius: '12px' }}>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    <div className="map-wrapper">
+      <iframe
+        className="google-map"
+        title="Ubicación de MARE en Google Maps"
+        src={src}
+        width="100%"
+        height="350"
+        style={{ border: 0 }}
+        allowFullScreen
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
       />
-      <Marker position={BUSINESS.coords} icon={icon}>
-        <Popup>
-          <strong>MARE</strong>
-          <br />
-          {BUSINESS.address}
-        </Popup>
-      </Marker>
-    </MapContainer>
+      <a
+        className="btn directions-btn"
+        href={directionsUrl}
+        target="_blank"
+        rel="noreferrer"
+      >
+        Cómo llegar
+      </a>
+    </div>
   );
 }

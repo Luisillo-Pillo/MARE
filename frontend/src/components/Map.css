@@ -1,2 +1,26 @@
 /* Styles for Map.jsx */
-.leaflet-container { border-radius: 12px; }
+.map-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.google-map {
+  border-radius: 12px;
+  display: block;
+}
+
+.map-wrapper .directions-btn {
+  /* Mismos estilos que .btn-primary (botón "Enviar mensaje" del formulario)
+     para mantener consistencia visual: degradado naranja→óxido, texto
+     blanco en negritas. Repetidos aquí en vez de solo agregar la clase
+     ".btn-primary" porque este botón vive dentro de ".contact-info", cuya
+     regla ".contact-info a" (Contact.css) tiene más especificidad que una
+     sola clase y le ganaba el color, dejando el texto naranja en vez de
+     blanco. Va fuera del mapa (no encima) para no quedar recortado ni
+     competir visualmente con el propio contenido del mapa. */
+  width: 100%;
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--color-orange), var(--color-rust));
+  color: #ffffff;
+}

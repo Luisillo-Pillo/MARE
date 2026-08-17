@@ -46,7 +46,10 @@ y `render.yaml` (backend/) + `vercel.json` (frontend/) para el despliegue.
 **Frontend**:
 - React 18 + Vite 5
 - react-router-dom 6
-- react-leaflet + leaflet (mapa de ubicación)
+- Mapa de ubicación con Google Maps Embed API (`<iframe>` con
+  `google.com/maps?...&output=embed`, sin API key ni dependencia de
+  librería) + botón "Cómo llegar" que abre direcciones en Google Maps
+  (`google.com/maps/dir/?api=1&destination=lat,lng`) en pestaña nueva
 - Sin librería de UI de terceros: todo el diseño es CSS propio (variables
   CSS, sin Tailwind ni Bootstrap)
 
@@ -169,9 +172,10 @@ y `render.yaml` (backend/) + `vercel.json` (frontend/) para el despliegue.
 ## 5. Frontend — páginas y componentes
 
 **Páginas públicas**: Home (hero + paquetes + carrusel), Contact (formulario
-+ mapa de Leaflet con la ubicación del negocio), Reservation (formulario de
-solicitud de reservación, requiere sesión), ReservationConfirmation, Login,
-Register, ForgotPassword, ResetPassword, NotFound
++ mapa de Google Maps embed con la ubicación del negocio y botón "Cómo
+llegar"), Reservation (formulario de solicitud de reservación, requiere
+sesión), ReservationConfirmation, Login, Register, ForgotPassword,
+ResetPassword, NotFound
 
 **Páginas de usuario autenticado**: Profile (editar datos, cambiar
 contraseña, ver stats), Events ("Mis eventos" — sus propias reservaciones,

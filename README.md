@@ -129,7 +129,7 @@ El **primer usuario registrado** se convierte automáticamente en administrador.
 - Autenticación JWT — la sesión permanece activa hasta que el usuario cierra sesión manualmente
 - Panel de administración: clientes, reservaciones y mensajes
 - Diseño responsive con menú hamburguesa en móvil
-- Mapa interactivo con OpenStreetMap
+- Mapa de Google Maps (embed, sin API key) con botón "Cómo llegar" que abre direcciones en Google Maps
 
 ## Paleta de colores
 
